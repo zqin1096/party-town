@@ -33,5 +33,9 @@ MonoBehaviour:
   - DestroyRpc
   - ChangeScene
   - UpdateLobbyUI
+  - Initialize
+  - SetNextTurn
+  - TakeDamage
+  - UpdateHealth
   DisableAutoOpenWizard: 1
   ShowSettings: 0
