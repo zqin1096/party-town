@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,9 +11,10 @@ public class AttackCard : Card {
         this.effectType = EffectType.Enemy;
     }
 
-    public static void Effect(PlayerController remote) {
-        Debug.LogFormat("AttackCard.Effect(), remote.displayName: {0}", remote.displayName);
-
-        remote.hp -= 1;
+    public static Action<PlayerController> Effect() {
+        return (PlayerController remote) => {
+            Debug.LogFormat("AttackCard.Effect(), remote.displayName: {0}", remote.displayName);
+            remote.state["hp"] = (Int64.Parse(remote.state["hp"]) - 1).ToString();
+        };
     }
 }

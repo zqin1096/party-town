@@ -6,8 +6,7 @@ using TMPro;
 using Photon.Pun;
 using Photon.Realtime;
 
-public class Menu : MonoBehaviourPunCallbacks
-{
+public class Menu : MonoBehaviourPunCallbacks {
     [Header("Screens")]
     public GameObject mainScreen;
     public GameObject lobbyScreen;
@@ -20,57 +19,48 @@ public class Menu : MonoBehaviourPunCallbacks
     public TextMeshProUGUI playerListText;
     public Button startGameButton;
 
-    void Start()
-    {
-        Debug.Log("123123");
+    void Start() {
+        Debug.LogFormat("Menu.Start()");
         // Disable the button when the player is not connected to the server.
         createRoomButton.interactable = false;
         joinRoomButton.interactable = false;
     }
 
-    public override void OnConnectedToMaster()
-    {
+    public override void OnConnectedToMaster() {
         // Re-enable the buttons.
         createRoomButton.interactable = true;
         joinRoomButton.interactable = true;
     }
 
-    void SetScreen(GameObject screen)
-    {
+    void SetScreen(GameObject screen) {
         mainScreen.SetActive(false);
         lobbyScreen.SetActive(false);
         screen.SetActive(true);
     }
 
-    public void OnCreateRoomButton(TMP_InputField roomNameInput)
-    {
+    public void OnCreateRoomButton(TMP_InputField roomNameInput) {
         NetworkManager.instance.CreateRoom(roomNameInput.text);
     }
 
-    public void OnJoinRoomButton(TMP_InputField roomNameInput)
-    {
+    public void OnJoinRoomButton(TMP_InputField roomNameInput) {
         NetworkManager.instance.JoinRoom(roomNameInput.text);
     }
 
-    public void OnPlayerNameUpdate(TMP_InputField playerNameInput)
-    {
+    public void OnPlayerNameUpdate(TMP_InputField playerNameInput) {
         PhotonNetwork.NickName = playerNameInput.text;
     }
 
-    public override void OnJoinedRoom()
-    {
+    public override void OnJoinedRoom() {
         SetScreen(lobbyScreen);
         photonView.RPC("UpdateLobbyUI", RpcTarget.All);
     }
 
-    public override void OnPlayerLeftRoom(Player otherPlayer)
-    {
+    public override void OnPlayerLeftRoom(Player otherPlayer) {
         UpdateLobbyUI();
     }
 
     [PunRPC]
-    public void UpdateLobbyUI()
-    {
+    public void UpdateLobbyUI() {
         playerListText.text = "";
 
         foreach (Player player in PhotonNetwork.PlayerList)
@@ -84,14 +74,12 @@ public class Menu : MonoBehaviourPunCallbacks
             startGameButton.interactable = false;
     }
 
-    public void OnLeaveLobbyButton()
-    {
+    public void OnLeaveLobbyButton() {
         PhotonNetwork.LeaveRoom();
         SetScreen(mainScreen);
     }
 
-    public void OnStartGameButton()
-    {
+    public void OnStartGameButton(){
         NetworkManager.instance.photonView.RPC("ChangeScene", RpcTarget.All, "Game");
     }
 }

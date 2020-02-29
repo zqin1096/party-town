@@ -39,11 +39,13 @@ public class CardContainer : MonoBehaviourPun {
     }
 
     public Card CreateRandomCard() {
-        int cardType = UnityEngine.Random.Range(0, 1);
+        int cardType = UnityEngine.Random.Range(0, 2);
 
         switch (cardType) {
             case 0:
                 return new AttackCard();
+            case 1:
+                return new HealCard();
             default:
                 return new AttackCard();
         }
@@ -52,7 +54,6 @@ public class CardContainer : MonoBehaviourPun {
     public void DoEffect() {
         Debug.LogFormat("CardContainer.DoEffect(), effectType: {0}", this.card.effectType);
         if (this.card.effectType == EffectType.Enemy) {
-            Debug.LogFormat("123123");
             PlayerController.remote.photonView.RPC(
                 "TakeEffect",
                 PlayerController.remote.photonPlayer,

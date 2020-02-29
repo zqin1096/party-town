@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
@@ -17,23 +18,28 @@ public class PlayerController : MonoBehaviourPun {
 
     public string displayName;
     public GameObject Deck;
-    public int hp;
     public Text localHP;
     public Text remoteHP;
+    public Dictionary<String, String> state;
 
     [PunRPC]
     void Initialize(Player player) {
-        Debug.LogFormat("PlayerController.Initialize(): player.IsLocal: {0}", player.IsLocal);
+        Debug.LogFormat("PlayerController.Initialize(): player.IsLocal: {0}, {1}", player.IsLocal, this.localHP.text);
 
-        photonPlayer = player;
+        this.photonPlayer = player;
+        this.state = new Dictionary<String, String>();
+        state.Add("hp", "5");
+        state.Add("turn", "1");
 
         if (player.IsLocal) {
-            local = this;
+            PlayerController.local = this;
             this.displayName = "local-1";
+            this.localHP.text += this.state["hp"];
             DrawCards(4);
         } else {
-            remote = this;
+            PlayerController.remote = this;
             this.displayName = "remote-1";
+            this.remoteHP.text += this.state["hp"];
         }
     }
 
@@ -58,27 +64,25 @@ public class PlayerController : MonoBehaviourPun {
 
         switch (cardNo) {
             case "0":
-                Debug.LogFormat("PlayerContainer.TakeEffect(): chosen 0 cardNo");
-                AttackCard.Effect(this);
-                Debug.LogFormat("PlayerContainer.TakeEffect(): now hp: {0}", this.hp);
+                Action<PlayerController> effect = AttackCard.Effect();
+                effect(this);
                 break;
             default:
                 break;
         }
 
-        // hp--;
-        photonView.RPC("UpdateState", RpcTarget.Others, this, false);
-        photonView.RPC("UpdateState", photonPlayer, this, true);
+        photonView.RPC("UpdateState", RpcTarget.Others, this.state, false);
+        photonView.RPC("UpdateState", photonPlayer, this.state, true);
     }
 
     [PunRPC]
-    void UpdateState(PlayerController _playerController, bool isMine) {
+    void UpdateState(Dictionary<String, String> state, bool isMine) {
         Debug.LogFormat("PlayerController.UpdateState(), isMine: {0}", isMine);
 
         if (!isMine) {
-            remoteHP.text = _playerController.hp.ToString();
+            remoteHP.text = state["hp"].ToString();
         } else {
-            localHP.text = _playerController.hp.ToString();
+            localHP.text = state["hp"].ToString();
         }
     }
 }
