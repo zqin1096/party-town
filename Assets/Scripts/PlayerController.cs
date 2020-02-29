@@ -60,11 +60,20 @@ public class PlayerController : MonoBehaviourPun {
 
     [PunRPC]
     public void TakeEffect(string cardNo) {
-        Debug.LogFormat("PlayerContainer.TakeEffect(): cardNo: {0}", cardNo);
+        Debug.LogFormat(
+            "PlayerContainer.TakeEffect(): displayName: {0}, cardNo: {1}",
+            this.displayName,
+            cardNo
+        );
 
+        Action<PlayerController> effect;
         switch (cardNo) {
             case "0":
-                Action<PlayerController> effect = AttackCard.Effect();
+                effect = AttackCard.Effect();
+                effect(this);
+                break;
+            case "1":
+                effect = HealCard.Effect();
                 effect(this);
                 break;
             default:

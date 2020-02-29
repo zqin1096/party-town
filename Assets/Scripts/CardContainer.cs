@@ -47,7 +47,7 @@ public class CardContainer : MonoBehaviourPun {
             case 1:
                 return new HealCard();
             default:
-                return new AttackCard();
+                return new HealCard();
         }
     }
 
@@ -60,7 +60,11 @@ public class CardContainer : MonoBehaviourPun {
                 this.card.no
             );
         } else if (this.card.effectType == EffectType.Self) {
-            // self effect
+            PlayerController.local.photonView.RPC(
+                "TakeEffect",
+                PlayerController.local.photonPlayer,
+                this.card.no
+            );
         }
     }
 }
