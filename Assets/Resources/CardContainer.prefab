@@ -323,7 +323,7 @@ MonoBehaviour:
   suitImage: {fileID: 6764367282419693059}
   nameText: {fileID: 6764367282323684641}
   descriptionText: {fileID: 6764367281283316432}
-  Hand: {fileID: 7772447725715699402, guid: b6d890f69c7886d4c90bb61b477d8711, type: 3}
+  Deck: {fileID: 0}
   Enemy: {fileID: 3818955575034774988, guid: f5eab36f916736f4facd547d7c1bec18, type: 3}
 --- !u!114 &3513335021800797262
 MonoBehaviour:
@@ -365,7 +365,7 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls:
         - m_Target: {fileID: 6764367282641117391}
-          m_MethodName: Attack
+          m_MethodName: DoEffect
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}

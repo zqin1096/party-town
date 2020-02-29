@@ -22,6 +22,7 @@ public class Menu : MonoBehaviourPunCallbacks
 
     void Start()
     {
+        Debug.Log("123123");
         // Disable the button when the player is not connected to the server.
         createRoomButton.interactable = false;
         joinRoomButton.interactable = false;

@@ -488,3 +488,6 @@ healthchecksdb
 MigrationBackup/
 
 # End of https://www.gitignore.io/api/osx,linux,unity,windows,visualstudio,visualstudiocode
+
+*.app
+*.app/**/*

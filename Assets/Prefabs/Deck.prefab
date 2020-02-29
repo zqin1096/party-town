@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3741507341538448459}
   - component: {fileID: -2891762430204233481}
   m_Layer: 5
-  m_Name: Hand
+  m_Name: Deck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

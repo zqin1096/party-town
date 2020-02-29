@@ -311,7 +311,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cards: []
-  Hand: {fileID: 1140490618257042397}
+  Deck: {fileID: 1140490618257042397}
   hp: 4
   localHP: {fileID: 802915192}
   remoteHP: {fileID: 252237048}
@@ -528,7 +528,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cards: []
-  Hand: {fileID: 1140490618257042397}
+  Deck: {fileID: 1140490618257042397}
   hp: 4
   localHP: {fileID: 802915192}
   remoteHP: {fileID: 252237048}
@@ -1088,7 +1088,7 @@ PrefabInstance:
     - target: {fileID: 7772447725715699402, guid: b6d890f69c7886d4c90bb61b477d8711,
         type: 3}
       propertyPath: m_Name
-      value: Hand
+      value: Deck
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b6d890f69c7886d4c90bb61b477d8711, type: 3}

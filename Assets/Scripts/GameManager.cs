@@ -13,20 +13,20 @@ public class GameManager : MonoBehaviourPun
 
     public static GameManager instance;
 
-    private void Awake()
-    {
+    private void Awake() {
         instance = this;
     }
 
-    void Start()
-    {
-        if (PhotonNetwork.IsMasterClient)
+    void Start() {
+        Debug.LogFormat("GameManager.Start()");
+        if (PhotonNetwork.IsMasterClient) {
+            Debug.LogFormat("GameManager.Start(): Master, setting the players");
             SetPlayers();
+        }
     }
 
-    void SetPlayers()
-    {
-        Debug.Log("Enter GameManager");
+    void SetPlayers() {
+        Debug.LogFormat("GameManager.SetPlayers()");
         player1.photonView.TransferOwnership(1);
         player2.photonView.TransferOwnership(2);
 
@@ -34,21 +34,16 @@ public class GameManager : MonoBehaviourPun
         player2.photonView.RPC("Initialize", RpcTarget.AllBuffered, PhotonNetwork.CurrentRoom.GetPlayer(2));
     }
 
-    [PunRPC]
-    void SetNextTurn()
-    {
-        if (currentPlayer == null)
-        {
-            currentPlayer = player1;
-        }
-        else
-        {
-            currentPlayer = currentPlayer == player1 ? player2 : player1;
-        }
-    }
+    // [PunRPC]
+    // void SetNextTurn() {
+    //     if (currentPlayer == null) {
+    //         currentPlayer = player1;
+    //     } else {
+    //         currentPlayer = currentPlayer == player1 ? player2 : player1;
+    //     }
+    // }
 
-    public PlayerController GetOtherPlayer(PlayerController player)
-    {
+    public PlayerController GetOtherPlayer(PlayerController player) {
         return player == player1 ? player2 : player1;
     }
 }
