@@ -319,12 +319,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8764a148b9af3dc4e9c00c49467b67ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardText: {fileID: 6764367283058601349}
   suitImage: {fileID: 6764367282419693059}
-  nameText: {fileID: 6764367282323684641}
-  descriptionText: {fileID: 6764367281283316432}
-  Deck: {fileID: 0}
-  Enemy: {fileID: 3818955575034774988, guid: f5eab36f916736f4facd547d7c1bec18, type: 3}
+  idxOnDeck: 0
 --- !u!114 &3513335021800797262
 MonoBehaviour:
   m_ObjectHideFlags: 0

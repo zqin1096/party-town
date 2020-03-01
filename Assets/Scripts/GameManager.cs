@@ -22,6 +22,10 @@ public class GameManager : MonoBehaviourPun {
         return GameManager.instance.players[PhotonNetwork.LocalPlayer.ActorNumber % 2];
     }
 
+    public static PlayerController GetPlayer(int actorNumber) {
+        return GameManager.instance.players[actorNumber - 1];
+    }
+
     void Awake() {
         instance = this;
     }

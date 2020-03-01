@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviourPun {
     public Player player;
     public List<CardContainer> cards = new List<CardContainer>();
 
-    public GameObject Deck;
+    public GameObject deck;
     public Text localHP;
     public Text remoteHP;
     public Text messageBox;
@@ -36,7 +36,7 @@ public class PlayerController : MonoBehaviourPun {
             DrawCards(4);
         }
 
-        this.SetState(false);
+        this.SetState(player.ActorNumber);
     }
 
     public bool HasTurn() {
@@ -44,32 +44,68 @@ public class PlayerController : MonoBehaviourPun {
     }
 
     [PunRPC]
-    public void TakeEffect(string cardNo) {
+    public void TakeEffect(int effectDoerNumber, int idxOnDeck) {
         Debug.LogFormat(
-            "PlayerContainer.TakeEffect(): ActorNumber: {0}, cardNo: {1}",
+            "PlayerContainer.TakeEffect(): ActorNumber: {0}, idxOnDeck: {1}",
             this.player.ActorNumber,
-            cardNo
+            idxOnDeck
         );
 
-        Action<PlayerController, PlayerController> effect = CardMap.GetCardEffect(cardNo);
-        effect(GameManager.GetLocal(), GameManager.GetRemote());
+        CardContainer cardContainer = null;
+        foreach (Transform child in GameManager.GetPlayer(effectDoerNumber).deck.transform) {
+            CardContainer cc = child.GetComponent<CardContainer>();
+            if (child.GetComponent<CardContainer>().idxOnDeck == idxOnDeck) {
+                cardContainer = cc;
+                break;
+            }
+        }
 
-        this.SetState(true);
+        if (cardContainer != null) {
+            cardContainer.card.Effect(this, GameManager.GetRemote(), effectDoerNumber);
+            this.SetState(effectDoerNumber);
+        }
     }
 
     [PunRPC]
-    public void UpdateState(Dictionary<String, String> state, bool isMine) {
-        Debug.LogFormat("PlayerController.UpdateState(), isMine: {0}", isMine);
+    public void UpdateState(
+        Dictionary<String, String> state,
+        Dictionary<String, String> remoteState,
+        bool isMine,
+        int effectDoerNumber
+    ) {
+        string stateInString = "";
+        foreach (KeyValuePair<string, string> entry in state) {
+            stateInString += entry.Key + ": " + entry.Value + ", ";
+        }
 
-        if (!isMine) {
-            remoteHP.text = state["hp"].ToString();
-        } else {
+        string remoteStateInString = "";
+        if (remoteState != null) {
+            foreach (KeyValuePair<string, string> entry in remoteState) {
+                remoteStateInString += entry.Key + ": " + entry.Value + ", ";
+            }
+        }
+
+        Debug.LogFormat(
+            "PlayerController.UpdateState(), effectDoerNumber: {0}, isMine: {1}, state: {2}, remoteState: {3}",
+            effectDoerNumber,
+            isMine,
+            stateInString,
+            remoteStateInString
+        );
+
+        if (isMine) {
             localHP.text = state["hp"].ToString();
+        } else {
+            remoteHP.text = state["hp"].ToString();
         }
 
+        int actorNumber = -1;
         if (Int64.Parse(state["turn"]) > 0) {
-            turn.text = this.player.ActorNumber.ToString();
+            actorNumber = isMine ? this.player.ActorNumber : (this.player.ActorNumber % 2) + 1;
+        } else if (Int64.Parse(remoteState["turn"]) > 0) {
+            actorNumber = isMine ? (this.player.ActorNumber % 2) + 1 : this.player.ActorNumber;
         }
+        turn.text = actorNumber.ToString();
     }
 
     void DrawCards(int numOfCards) {
@@ -86,20 +122,37 @@ public class PlayerController : MonoBehaviourPun {
                 Quaternion.identity
             );
 
-            card.transform.SetParent(Deck.transform, false);
-            card.GetPhotonView().RPC("Initialize", RpcTarget.Others, false);
-            card.GetPhotonView().RPC("Initialize", player, true);
+            card.transform.SetParent(deck.transform, false);
+            card.GetPhotonView().RPC("Initialize", RpcTarget.Others, i, false);
+            card.GetPhotonView().RPC("Initialize", player, i, true);
         }
     }
 
-    void SetState(bool shouldUpdateRemoteState) {
-        photonView.RPC("UpdateState", RpcTarget.Others, this.state, false);
-        photonView.RPC("UpdateState", player, this.state, true);
+    void SetState(int effectDoerNumber) {
+        Dictionary<String, String> remoteState = GameManager.GetRemote().state;
 
-        if (shouldUpdateRemoteState) {
-            Dictionary<String, String> remoteState = GameManager.GetRemote().state;
-            photonView.RPC("UpdateState", RpcTarget.Others, remoteState, true);
-            photonView.RPC("UpdateState", player, remoteState, false);
-        }
+        photonView.RPC(
+            "UpdateState",
+            RpcTarget.Others,
+            this.state,
+            remoteState,
+            false,
+            effectDoerNumber
+        );
+
+        photonView.RPC(
+            "UpdateState",
+            player,
+            this.state,
+            remoteState,
+            true,
+            effectDoerNumber
+        );
+
+        // Dictionary<String, String> remoteState = GameManager.GetRemote().state;
+        // if (remoteState != null) {
+        //     photonView.RPC("UpdateState", RpcTarget.Others, remoteState, true, effectDoerNumber);
+        //     photonView.RPC("UpdateState", player, remoteState, false, effectDoerNumber);
+        // }
     }
 }

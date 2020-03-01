@@ -388,7 +388,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cards: []
-  Deck: {fileID: 1140490618257042397}
+  deck: {fileID: 1140490618257042397}
   localHP: {fileID: 802915192}
   remoteHP: {fileID: 252237048}
   messageBox: {fileID: 90258373}
@@ -760,7 +760,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cards: []
-  Deck: {fileID: 1140490618257042397}
+  deck: {fileID: 1140490618257042397}
   localHP: {fileID: 802915192}
   remoteHP: {fileID: 252237048}
   messageBox: {fileID: 90258373}

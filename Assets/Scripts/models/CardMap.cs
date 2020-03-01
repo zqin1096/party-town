@@ -17,16 +17,16 @@ public class CardMap {
     }
   }
 
-  public static Action<PlayerController, PlayerController> GetCardEffect(string cardNo) {
-    // Debug.LogFormat("CardMap.GetCardEffect(): cardNo: {0}", cardNo);
+  // public static Action<PlayerController, PlayerController> GetCardEffect(string cardNo) {
+  //   // Debug.LogFormat("CardMap.GetCardEffect(): cardNo: {0}", cardNo);
 
-    switch (cardNo) {
-      case "0":
-          return AttackCard.Effect();
-      case "1":
-          return HealCard.Effect();
-      default:
-          throw new System.InvalidOperationException("CardMap.GetCardEffect(): cardNo wrong");
-    }
-  }
+  //   switch (cardNo) {
+  //     case "0":
+  //         return new AttackCard().Effect();
+  //     case "1":
+  //         return new HealCard().Effect();
+  //     default:
+  //         throw new System.InvalidOperationException("CardMap.GetCardEffect(): cardNo wrong");
+  //   }
+  // }
 }
