@@ -9,4 +9,7 @@ public class Card {
     public string desc;
     public string label;
     public EffectType effectType;
+
+    static void Effect(PlayerController dest, PlayerController src) {
+    }
 }

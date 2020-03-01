@@ -28,11 +28,11 @@ public class CardContainer : MonoBehaviourPun {
 
         // Check if this card belongs to the local player or the remote player.
         if (isMine) {
-            GameManager.instance.GetLocal().cards.Add(this);
+            GameManager.GetLocal().cards.Add(this);
             //gameObject.transform.SetParent(Deck.transform, false);
         } else {
             // GameManager.instance.GetOtherPlayer(PlayerController.local).cards.Add(this);
-            GameManager.instance.GetRemote().cards.Add(this);
+            GameManager.GetRemote().cards.Add(this);
             //gameObject.transform.SetParent(Enemy.transform, false);
         }
     }
@@ -44,26 +44,29 @@ public class CardContainer : MonoBehaviourPun {
 
     public void DoEffect() {
         Debug.LogFormat(
-            "CardContainer.DoEffect(), ActorNumber: {0}, cardLabel: {1}, effectType: {2}, localActorNo: {3}, remoteActorNo: {4}",
-            PhotonNetwork.LocalPlayer.ActorNumber,
+            "CardContainer.DoEffect(), ActorNumber: {0}, HasTurn: {1}, cardLabel: {2}, effectType: {3}, localActorNo: {4}, remoteActorNo: {5}",
+            GameManager.GetLocal().player.ActorNumber,
+            GameManager.GetLocal().HasTurn(),
             this.card.label,
             this.card.effectType,
-            GameManager.instance.GetLocal().player.ActorNumber,
-            GameManager.instance.GetRemote().player.ActorNumber
+            GameManager.GetLocal().player.ActorNumber,
+            GameManager.GetRemote().player.ActorNumber
         );
 
-        if (this.card.effectType == EffectType.Enemy) {
-            GameManager.instance.GetRemote().photonView.RPC(
-                "TakeEffect",
-                GameManager.instance.GetRemote().player,
-                this.card.no
-            );
-        } else if (this.card.effectType == EffectType.Self) {
-            GameManager.instance.GetLocal().photonView.RPC(
-                "TakeEffect",
-                GameManager.instance.GetLocal().player,
-                this.card.no
-            );
+        if (GameManager.GetLocal().HasTurn()) {
+            if (this.card.effectType == EffectType.Enemy) {
+                GameManager.GetRemote().photonView.RPC(
+                    "TakeEffect",
+                    GameManager.GetRemote().player,
+                    this.card.no
+                );
+            } else if (this.card.effectType == EffectType.Self) {
+                GameManager.GetLocal().photonView.RPC(
+                    "TakeEffect",
+                    GameManager.GetLocal().player,
+                    this.card.no
+                );
+            }
         }
     }
 }

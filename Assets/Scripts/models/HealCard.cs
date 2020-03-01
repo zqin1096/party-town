@@ -11,10 +11,18 @@ public class HealCard : Card {
         this.effectType = EffectType.Self;
     }
 
-    public static Action<PlayerController> Effect() {
-        return (PlayerController target) => {
-            Debug.LogFormat("AttackCard.Effect(), target's nickName: {0}", target.player.NickName);
-            target.state["hp"] = (Int64.Parse(target.state["hp"]) + 1).ToString();
+    public static Action<PlayerController, PlayerController> Effect() {
+        return (PlayerController dest, PlayerController src) => {
+            Debug.LogFormat(
+                "HealCard.Effect(), destActorNumber: {0}, srcActorNumber: {1}",
+                dest.player.ActorNumber,
+                src.player.ActorNumber
+            );
+
+            dest.state["hp"] = (Int64.Parse(dest.state["hp"]) + 1).ToString();
+
+            src.state["turn"] = (Int64.Parse(src.state["turn"]) + 1).ToString();
+            dest.state["turn"] = (Int64.Parse(dest.state["turn"]) - 1).ToString();
         };
     }
 }

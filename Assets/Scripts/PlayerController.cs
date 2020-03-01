@@ -9,17 +9,18 @@ using UnityEngine.UI;
 // The photon view ID of player1 is 2, and the photon view ID of player2 is 3.
 // The photon view ID of the network manager is 1.
 public class PlayerController : MonoBehaviourPun {
-    // Summarizes a "player" within a room, identified (in that room) by ID.
     public Player player;
     public List<CardContainer> cards = new List<CardContainer>();
 
     public GameObject Deck;
     public Text localHP;
     public Text remoteHP;
+    public Text messageBox;
+    public Text turn;
     public Dictionary<String, String> state;
 
     [PunRPC]
-    void Initialize(Player player) {
+    void Initialize(Player player, Dictionary<String, String> playerState) {
         Debug.LogFormat(
             "PlayerController.Initialize(): IsLocal: {0}, IsMasterClient: {1}, NickName: {2}, ActorNumber: {3}",
             player.IsLocal,
@@ -29,21 +30,54 @@ public class PlayerController : MonoBehaviourPun {
         );
 
         this.player = player;
-        this.state = new Dictionary<String, String>();
-        state.Add("hp", "5");
-        state.Add("turn", "0");
+        this.state = playerState;
 
         if (player.IsLocal) {
-            this.localHP.text += this.state["hp"];
-            this.state["turn"] = "1";
             DrawCards(4);
+        }
+
+        this.SetState(false);
+    }
+
+    public bool HasTurn() {
+        return Int64.Parse(this.state["turn"]) > 0;
+    }
+
+    [PunRPC]
+    public void TakeEffect(string cardNo) {
+        Debug.LogFormat(
+            "PlayerContainer.TakeEffect(): ActorNumber: {0}, cardNo: {1}",
+            this.player.ActorNumber,
+            cardNo
+        );
+
+        Action<PlayerController, PlayerController> effect = CardMap.GetCardEffect(cardNo);
+        effect(GameManager.GetLocal(), GameManager.GetRemote());
+
+        this.SetState(true);
+    }
+
+    [PunRPC]
+    public void UpdateState(Dictionary<String, String> state, bool isMine) {
+        Debug.LogFormat("PlayerController.UpdateState(), isMine: {0}", isMine);
+
+        if (!isMine) {
+            remoteHP.text = state["hp"].ToString();
         } else {
-            this.remoteHP.text += this.state["hp"];
+            localHP.text = state["hp"].ToString();
+        }
+
+        if (Int64.Parse(state["turn"]) > 0) {
+            turn.text = this.player.ActorNumber.ToString();
         }
     }
 
     void DrawCards(int numOfCards) {
-        Debug.LogFormat("PlayerController.DrawCards, numOfCards: {0}", numOfCards);
+        Debug.LogFormat(
+            "PlayerController.DrawCards, ActorNumber: {0}, numOfCards: {1}",
+            this.player.ActorNumber,
+            numOfCards
+        );
 
         for (int i = 0; i < numOfCards; i++) {
             GameObject card = PhotonNetwork.Instantiate(
@@ -58,30 +92,14 @@ public class PlayerController : MonoBehaviourPun {
         }
     }
 
-    [PunRPC]
-    public void TakeEffect(string cardNo) {
-        Debug.LogFormat(
-            "PlayerContainer.TakeEffect(): ActorNumber: {0}, NickName: {1}, cardNo: {2}",
-            this.player.ActorNumber,
-            this.player.NickName,
-            cardNo
-        );
-
-        Action<PlayerController> effect = CardMap.GetCardEffect(cardNo);
-        effect(this);
-
+    void SetState(bool shouldUpdateRemoteState) {
         photonView.RPC("UpdateState", RpcTarget.Others, this.state, false);
         photonView.RPC("UpdateState", player, this.state, true);
-    }
 
-    [PunRPC]
-    void UpdateState(Dictionary<String, String> state, bool isMine) {
-        Debug.LogFormat("PlayerController.UpdateState(), isMine: {0}", isMine);
-
-        if (!isMine) {
-            remoteHP.text = state["hp"].ToString();
-        } else {
-            localHP.text = state["hp"].ToString();
+        if (shouldUpdateRemoteState) {
+            Dictionary<String, String> remoteState = GameManager.GetRemote().state;
+            photonView.RPC("UpdateState", RpcTarget.Others, remoteState, true);
+            photonView.RPC("UpdateState", player, remoteState, false);
         }
     }
 }

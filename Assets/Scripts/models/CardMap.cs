@@ -17,7 +17,7 @@ public class CardMap {
     }
   }
 
-  public static Action<PlayerController> GetCardEffect(string cardNo) {
+  public static Action<PlayerController, PlayerController> GetCardEffect(string cardNo) {
     // Debug.LogFormat("CardMap.GetCardEffect(): cardNo: {0}", cardNo);
 
     switch (cardNo) {
