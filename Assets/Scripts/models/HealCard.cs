@@ -12,9 +12,9 @@ public class HealCard : Card {
     }
 
     public static Action<PlayerController> Effect() {
-        return (PlayerController self) => {
-            Debug.LogFormat("AttackCard.Effect(), remote.displayName: {0}", self.displayName);
-            self.state["hp"] = (Int64.Parse(self.state["hp"]) + 1).ToString();
+        return (PlayerController target) => {
+            Debug.LogFormat("AttackCard.Effect(), target's nickName: {0}", target.player.NickName);
+            target.state["hp"] = (Int64.Parse(target.state["hp"]) + 1).ToString();
         };
     }
 }

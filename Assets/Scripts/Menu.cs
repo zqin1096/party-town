@@ -39,10 +39,24 @@ public class Menu : MonoBehaviourPunCallbacks {
     }
 
     public void OnCreateRoomButton(TMP_InputField roomNameInput) {
-        NetworkManager.instance.CreateRoom(roomNameInput.text);
+        Debug.LogFormat(
+            "Menu.OnCreateRoomButton(): roomName: {0}, nickName: {1}",
+            roomNameInput.text,
+            PhotonNetwork.NickName
+        );
+
+        if (roomNameInput.text.Length > 0) {
+            NetworkManager.instance.CreateRoom(roomNameInput.text);
+        }
     }
 
     public void OnJoinRoomButton(TMP_InputField roomNameInput) {
+        Debug.LogFormat(
+            "Menu.OnJoinRoomButton(): roomName: {0}, nickName: {1}",
+            roomNameInput.text,
+            PhotonNetwork.NickName
+        );
+
         NetworkManager.instance.JoinRoom(roomNameInput.text);
     }
 
@@ -51,6 +65,8 @@ public class Menu : MonoBehaviourPunCallbacks {
     }
 
     public override void OnJoinedRoom() {
+        Debug.LogFormat("Menu.OnJoinedRoom()");
+
         SetScreen(lobbyScreen);
         photonView.RPC("UpdateLobbyUI", RpcTarget.All);
     }
@@ -63,15 +79,15 @@ public class Menu : MonoBehaviourPunCallbacks {
     public void UpdateLobbyUI() {
         playerListText.text = "";
 
-        foreach (Player player in PhotonNetwork.PlayerList)
-        {
+        foreach (Player player in PhotonNetwork.PlayerList) {
             playerListText.text += player.NickName + "\n";
         }
 
-        if (PhotonNetwork.IsMasterClient)
+        if (PhotonNetwork.IsMasterClient) {
             startGameButton.interactable = true;
-        else
+        } else {
             startGameButton.interactable = false;
+        }
     }
 
     public void OnLeaveLobbyButton() {
@@ -79,7 +95,7 @@ public class Menu : MonoBehaviourPunCallbacks {
         SetScreen(mainScreen);
     }
 
-    public void OnStartGameButton(){
-        NetworkManager.instance.photonView.RPC("ChangeScene", RpcTarget.All, "Game");
+    public void OnStartGameButton() {
+        NetworkManager.instance.photonView.RPC("CreateScene", RpcTarget.All, "Game");
     }
 }

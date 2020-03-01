@@ -39,5 +39,6 @@ MonoBehaviour:
   - UpdateHealth
   - TakeEffect
   - UpdateState
+  - CreateScene
   DisableAutoOpenWizard: 1
   ShowSettings: 0

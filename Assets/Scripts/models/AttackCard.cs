@@ -12,9 +12,9 @@ public class AttackCard : Card {
     }
 
     public static Action<PlayerController> Effect() {
-        return (PlayerController remote) => {
-            Debug.LogFormat("AttackCard.Effect(), remote.displayName: {0}", remote.displayName);
-            remote.state["hp"] = (Int64.Parse(remote.state["hp"]) - 1).ToString();
+        return (PlayerController target) => {
+            Debug.LogFormat("AttackCard.Effect(), target's nickName: {0}", target.player.NickName);
+            target.state["hp"] = (Int64.Parse(target.state["hp"]) - 1).ToString();
         };
     }
 }

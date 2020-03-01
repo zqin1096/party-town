@@ -9,14 +9,10 @@ using UnityEngine.UI;
 // The photon view ID of player1 is 2, and the photon view ID of player2 is 3.
 // The photon view ID of the network manager is 1.
 public class PlayerController : MonoBehaviourPun {
-    public static PlayerController local;
-    public static PlayerController remote;
-
     // Summarizes a "player" within a room, identified (in that room) by ID.
-    public Player photonPlayer;
+    public Player player;
     public List<CardContainer> cards = new List<CardContainer>();
 
-    public string displayName;
     public GameObject Deck;
     public Text localHP;
     public Text remoteHP;
@@ -24,64 +20,58 @@ public class PlayerController : MonoBehaviourPun {
 
     [PunRPC]
     void Initialize(Player player) {
-        Debug.LogFormat("PlayerController.Initialize(): player.IsLocal: {0}, {1}", player.IsLocal, this.localHP.text);
+        Debug.LogFormat(
+            "PlayerController.Initialize(): IsLocal: {0}, IsMasterClient: {1}, NickName: {2}, ActorNumber: {3}",
+            player.IsLocal,
+            PhotonNetwork.IsMasterClient,
+            player.NickName,
+            player.ActorNumber
+        );
 
-        this.photonPlayer = player;
+        this.player = player;
         this.state = new Dictionary<String, String>();
         state.Add("hp", "5");
-        state.Add("turn", "1");
+        state.Add("turn", "0");
 
         if (player.IsLocal) {
-            PlayerController.local = this;
-            this.displayName = "local-1";
             this.localHP.text += this.state["hp"];
+            this.state["turn"] = "1";
             DrawCards(4);
         } else {
-            PlayerController.remote = this;
-            this.displayName = "remote-1";
             this.remoteHP.text += this.state["hp"];
         }
     }
 
-    void DrawCards(int num) {
-        Debug.LogFormat("PlayerController.DrawCards, num: {0}", num);
+    void DrawCards(int numOfCards) {
+        Debug.LogFormat("PlayerController.DrawCards, numOfCards: {0}", numOfCards);
 
-        for (var i = 0; i < num; i++) {
+        for (int i = 0; i < numOfCards; i++) {
             GameObject card = PhotonNetwork.Instantiate(
                 "CardContainer",
                 new Vector3(0, 0, 0),
                 Quaternion.identity
             );
+
             card.transform.SetParent(Deck.transform, false);
             card.GetPhotonView().RPC("Initialize", RpcTarget.Others, false);
-            card.GetPhotonView().RPC("Initialize", photonPlayer, true);
+            card.GetPhotonView().RPC("Initialize", player, true);
         }
     }
 
     [PunRPC]
     public void TakeEffect(string cardNo) {
         Debug.LogFormat(
-            "PlayerContainer.TakeEffect(): displayName: {0}, cardNo: {1}",
-            this.displayName,
+            "PlayerContainer.TakeEffect(): ActorNumber: {0}, NickName: {1}, cardNo: {2}",
+            this.player.ActorNumber,
+            this.player.NickName,
             cardNo
         );
 
-        Action<PlayerController> effect;
-        switch (cardNo) {
-            case "0":
-                effect = AttackCard.Effect();
-                effect(this);
-                break;
-            case "1":
-                effect = HealCard.Effect();
-                effect(this);
-                break;
-            default:
-                break;
-        }
+        Action<PlayerController> effect = CardMap.GetCardEffect(cardNo);
+        effect(this);
 
         photonView.RPC("UpdateState", RpcTarget.Others, this.state, false);
-        photonView.RPC("UpdateState", photonPlayer, this.state, true);
+        photonView.RPC("UpdateState", player, this.state, true);
     }
 
     [PunRPC]
