@@ -18,12 +18,14 @@ public class Menu : MonoBehaviourPunCallbacks {
     [Header("Lobby Screen")]
     public TextMeshProUGUI playerListText;
     public Button startGameButton;
+    public TextMeshProUGUI gameStartingText;
 
     void Start() {
         Debug.LogFormat("Menu.Start()");
         // Disable the button when the player is not connected to the server.
         createRoomButton.interactable = false;
         joinRoomButton.interactable = false;
+        gameStartingText.gameObject.SetActive(false);
     }
 
     public override void OnConnectedToMaster() {
@@ -100,9 +102,17 @@ public class Menu : MonoBehaviourPunCallbacks {
             "Menu.OnStartGameButton(): playerCount: {0}",
             PhotonNetwork.CurrentRoom.PlayerCount
         );
+        if (PhotonNetwork.CurrentRoom.PlayerCount > 1) {
+            gameStartingText.gameObject.SetActive(true);
+            Invoke("TryStartGame", 3.0f);
+        }
+    }
 
+    void TryStartGame() {
         if (PhotonNetwork.CurrentRoom.PlayerCount > 1) {
             NetworkManager.instance.photonView.RPC("CreateScene", RpcTarget.All, "Game");
+        } else {
+            gameStartingText.gameObject.SetActive(false);
         }
     }
 }

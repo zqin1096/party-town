@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using Photon.Realtime;
 
 public class NetworkManager : MonoBehaviourPunCallbacks {
     // NetworkManager instance (singleton).
@@ -39,7 +40,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
     }
 
     public void CreateRoom(string roomName) {
-        PhotonNetwork.CreateRoom(roomName);
+        RoomOptions options = new RoomOptions();
+        options.MaxPlayers = 2;
+        PhotonNetwork.CreateRoom(roomName, options);
     }
 
     public void JoinRoom(string roomName) {
