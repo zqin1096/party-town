@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviourPun {
         this.state = playerState;
 
         if (player.IsLocal) {
-            DrawCards(4);
+            InitializeCards(4);
         }
     }
 
@@ -83,9 +83,44 @@ public class PlayerController : MonoBehaviourPun {
         }
     }
 
-    void DrawCards(int numOfCards) {
+    [PunRPC]
+    public void RemoveCard(
+        int idxOnDeck,
+        int callerActorNumber
+    ) {
         Debug.LogFormat(
-            "PlayerController.DrawCards, ActorNumber: {0}, numOfCards: {1}",
+            "PlayerController.RemoveCard(), ActorNumber: {0}, idxOnDeck: {1}, callerActorNumber: {2}",
+            this.player.ActorNumber,
+            idxOnDeck,
+            callerActorNumber
+        );
+
+        if (this.player.IsLocal) {
+            CardContainer cardContainer = null;
+            foreach (Transform child in this.deck.transform) {
+                CardContainer cc = child.GetComponent<CardContainer>();
+                if (child.GetComponent<CardContainer>().idxOnDeck == idxOnDeck) {
+                    cardContainer = cc;
+                    break;
+                }
+            }
+
+            if (cardContainer != null) {
+                Debug.LogFormat(
+                    "PlayerController.RemoveCard, found, remove card of idx: {0}",
+                    idxOnDeck
+                );
+
+                Destroy(cardContainer.gameObject);
+            }
+
+        } else {
+        }
+    }
+
+    void InitializeCards(int numOfCards) {
+        Debug.LogFormat(
+            "PlayerController.InitializeCards, ActorNumber: {0}, numOfCards: {1}",
             this.player.ActorNumber,
             numOfCards
         );

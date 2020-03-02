@@ -40,5 +40,6 @@ MonoBehaviour:
   - TakeEffect
   - UpdateState
   - CreateScene
+  - RemoveCard
   DisableAutoOpenWizard: 1
   ShowSettings: 0

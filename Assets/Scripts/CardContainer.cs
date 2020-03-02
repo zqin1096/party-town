@@ -63,6 +63,13 @@ public class CardContainer : MonoBehaviourPun {
                 GameManager.GetPlayerStates(),
                 GameManager.GetLocalActorNumber()
             );
+
+            GameManager.GetLocal().photonView.RPC(
+                "RemoveCard",
+                RpcTarget.AllBuffered,
+                this.idxOnDeck,
+                GameManager.GetLocalActorNumber()
+            );
         }
     }
 }
