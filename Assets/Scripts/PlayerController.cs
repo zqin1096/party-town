@@ -13,6 +13,8 @@ public class PlayerController : MonoBehaviourPun {
     public Text localHP;
     public Text remoteHP;
     public Text messageBox;
+    public Text username;
+    public Text remoteUsername;
     public Text turn;
 
     public Player player;
@@ -33,7 +35,10 @@ public class PlayerController : MonoBehaviourPun {
         this.state = playerState;
 
         if (player.IsLocal) {
+            this.username.text = player.NickName;
+            this.remoteUsername.text = player.GetNext().NickName;
             InitializeCards(4);
+        } else {
         }
     }
 
@@ -76,8 +81,8 @@ public class PlayerController : MonoBehaviourPun {
             localHP.text = localState["hp"].ToString();
             remoteHP.text = remoteState["hp"].ToString();
             turn.text = Int64.Parse(localState["turn"]) > 0
-              ? localActorNumber.ToString()
-              : (3 - localActorNumber).ToString();
+              ? GameManager.GetLocal().player.NickName
+              : GameManager.GetRemote().player.NickName;
         } else {
             this.state = remoteState;
         }
