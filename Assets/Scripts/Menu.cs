@@ -96,6 +96,13 @@ public class Menu : MonoBehaviourPunCallbacks {
     }
 
     public void OnStartGameButton() {
-        NetworkManager.instance.photonView.RPC("CreateScene", RpcTarget.All, "Game");
+        Debug.LogFormat(
+            "Menu.OnStartGameButton(): playerCount: {0}",
+            PhotonNetwork.CurrentRoom.PlayerCount
+        );
+
+        if (PhotonNetwork.CurrentRoom.PlayerCount > 1) {
+            NetworkManager.instance.photonView.RPC("CreateScene", RpcTarget.All, "Game");
+        }
     }
 }

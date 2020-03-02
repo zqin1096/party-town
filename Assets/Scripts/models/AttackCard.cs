@@ -11,18 +11,17 @@ public class AttackCard : Card {
         this.effectType = EffectType.Enemy;
     }
 
-    public override void Effect(PlayerController dest, PlayerController src, int effectDoerNumber) {
+    public override void Effect(Dictionary<string, string>[] states, int callerActorNumber) {
         Debug.LogFormat(
-            "AttackCard.Effect(), destActorNumber: {0}, srcActorNumber: {1}, effectDoerNumber: {2}",
-            dest.player.ActorNumber,
-            src.player.ActorNumber,
-            effectDoerNumber
+            "AttackCard.Effect(), callerActorNumber: {0}",
+            callerActorNumber
         );
 
-        dest.state["hp"] = (Int64.Parse(dest.state["hp"]) - 1).ToString();
+        Dictionary<string, string> localState = states[callerActorNumber - 1];
+        Dictionary<string, string> remoteState = states[2 - callerActorNumber];
+        remoteState["hp"] = (Int64.Parse(remoteState["hp"]) - 1).ToString();
 
-        this.SetNextTurn(dest, src, effectDoerNumber);
-        // dest.state["turn"] = (Int64.Parse(dest.state["turn"]) + 1).ToString();
-        // src.state["turn"] = (Int64.Parse(dest.state["turn"]) - 1).ToString();
+        localState["turn"] = (Int64.Parse(localState["turn"]) - 1).ToString();
+        remoteState["turn"] = (Int64.Parse(remoteState["turn"]) + 1).ToString();
     }
 }

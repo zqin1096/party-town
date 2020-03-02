@@ -9,10 +9,12 @@ public class CardContainer : MonoBehaviourPun {
     public Card card;
     public Image suitImage;
     public int idxOnDeck;
+    public Text label;
 
     [PunRPC]
     void Initialize(int idxOnDeck, bool isMine) {
         this.card = CreateRandomCard();
+        this.label.text = this.card.label;
 
         Debug.LogFormat(
             "CardContainer.Initialize(): creating card, ActorNumber: {0}, isMine: {1}, idxOnDeck: {2}, cardNo: {3}, cardLabel: {4}",
@@ -24,16 +26,6 @@ public class CardContainer : MonoBehaviourPun {
         );
 
         this.idxOnDeck = idxOnDeck;
-
-        // Check if this card belongs to the local player or the remote player.
-        if (isMine) {
-            GameManager.GetLocal().cards.Add(this);
-            //gameObject.transform.SetParent(Deck.transform, false);
-        } else {
-            // GameManager.instance.GetOtherPlayer(PlayerController.local).cards.Add(this);
-            GameManager.GetRemote().cards.Add(this);
-            //gameObject.transform.SetParent(Enemy.transform, false);
-        }
     }
 
     public Card CreateRandomCard() {
@@ -53,21 +45,24 @@ public class CardContainer : MonoBehaviourPun {
         );
 
         if (GameManager.GetLocal().HasTurn()) {
-            if (this.card.effectType == EffectType.Enemy) {
-                GameManager.GetRemote().photonView.RPC(
-                    "TakeEffect",
-                    GameManager.GetRemote().player,
-                    GameManager.GetLocal().player.ActorNumber,
-                    idxOnDeck
-                );
-            } else if (this.card.effectType == EffectType.Self) {
-                GameManager.GetLocal().photonView.RPC(
-                    "TakeEffect",
-                    GameManager.GetLocal().player,
-                    GameManager.GetLocal().player.ActorNumber,
-                    idxOnDeck
-                );
-            }
+            this.card.Effect(
+                GameManager.GetPlayerStates(),
+                GameManager.GetLocalActorNumber()
+            );
+
+            GameManager.GetLocal().photonView.RPC(
+                "UpdateState",
+                RpcTarget.AllBuffered,
+                GameManager.GetPlayerStates(),
+                GameManager.GetLocalActorNumber()
+            );
+
+            GameManager.GetRemote().photonView.RPC(
+                "UpdateState",
+                RpcTarget.AllBuffered,
+                GameManager.GetPlayerStates(),
+                GameManager.GetLocalActorNumber()
+            );
         }
     }
 }
