@@ -6,8 +6,6 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
 
-// The photon view ID of player1 is 2, and the photon view ID of player2 is 3.
-// The photon view ID of the network manager is 1.
 public class PlayerController : MonoBehaviourPun {
     public GameObject deck;
     public Text localHP;
@@ -83,6 +81,8 @@ public class PlayerController : MonoBehaviourPun {
             turn.text = Int64.Parse(localState["turn"]) > 0
               ? GameManager.GetLocal().player.NickName
               : GameManager.GetRemote().player.NickName;
+
+            EndGameIfNecessary(localState, remoteState);
         } else {
             this.state = remoteState;
         }
@@ -123,6 +123,29 @@ public class PlayerController : MonoBehaviourPun {
         }
     }
 
+    [PunRPC]
+    public void DeclareGameEnd(
+        int winnerActorNumber,
+        int callerActorNumber
+    ) {
+        Debug.LogFormat(
+            "PlayerController.DeclareGameEnd(), winnerActorNumber: {0}, callerActorNumber: {1}",
+            winnerActorNumber,
+            callerActorNumber
+        );
+
+        if (this.player.IsLocal) {
+            if (winnerActorNumber == 0) {
+                this.messageBox.text = "Draw";
+            } else if (this.player.ActorNumber == winnerActorNumber) {
+                this.messageBox.text = "Player " + this.player.NickName + " has won!";
+            } else {
+                this.messageBox.text = "Player " + GameManager.GetRemote().player.NickName + " has won!";
+            }
+        } else {
+        }
+    }
+
     void InitializeCards(int numOfCards) {
         Debug.LogFormat(
             "PlayerController.InitializeCards, ActorNumber: {0}, numOfCards: {1}",
@@ -140,6 +163,32 @@ public class PlayerController : MonoBehaviourPun {
             card.transform.SetParent(deck.transform, false);
             card.GetPhotonView().RPC("Initialize", RpcTarget.Others, i, false);
             card.GetPhotonView().RPC("Initialize", player, i, true);
+        }
+    }
+
+    void EndGameIfNecessary(
+        Dictionary<string, string> localState,
+        Dictionary<string, string> remoteState
+    ) {
+        int localHPInt = (int) Int64.Parse(localState["hp"]);
+        int remoteHPInt = (int) Int64.Parse(remoteState["hp"]);
+
+        if (localHPInt < 1) {
+            if (remoteHPInt > 0) {
+                this.photonView.RPC(
+                    "DeclareGameEnd",
+                    RpcTarget.AllBuffered,
+                    GameManager.GetLocalActorNumber(),
+                    GameManager.GetLocalActorNumber()
+                );
+            } else if (remoteHPInt < 1) {
+                this.photonView.RPC(
+                    "DeclareGameEnd",
+                    RpcTarget.AllBuffered,
+                    0,
+                    GameManager.GetLocalActorNumber()
+                );
+            }
         }
     }
 }

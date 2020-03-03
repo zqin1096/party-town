@@ -41,5 +41,6 @@ MonoBehaviour:
   - UpdateState
   - CreateScene
   - RemoveCard
+  - DeclareGameEnd
   DisableAutoOpenWizard: 1
   ShowSettings: 0
