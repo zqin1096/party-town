@@ -491,3 +491,4 @@ MigrationBackup/
 
 *.app
 *.app/**/*
+ProjectSettings/**/*
