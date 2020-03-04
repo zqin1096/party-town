@@ -11,5 +11,5 @@ public class Card {
     public string label;
     public EffectType effectType;
 
-    public virtual void Effect(Dictionary<string, string>[] states, int callerActorNumber) {}
+    public virtual void Effect(Dictionary<string, string>[] states, int callerActorNumber) { }
 }

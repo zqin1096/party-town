@@ -12,6 +12,21 @@ public class GameManager : MonoBehaviourPun {
 
     public static GameManager instance;
 
+    public PlayerController currentPlayer;
+
+    [PunRPC]
+    void SetNextTurn() {
+        if (currentPlayer == null) {
+            currentPlayer = player1;
+        } else {
+            currentPlayer = currentPlayer == player1 ? player2 : player1;
+        }
+        if (currentPlayer == GameManager.GetLocal()) {
+            GameManager.GetLocal().StartTurn();
+        }
+        GameUI.instance.ToggleEndTurnButton(currentPlayer == GameManager.GetLocal());
+    }
+
     public static int GetLocalActorNumber() {
         return PhotonNetwork.LocalPlayer.ActorNumber;
     }
@@ -93,6 +108,7 @@ public class GameManager : MonoBehaviourPun {
             GameManager.GetPlayerStates(),
             GameManager.GetLocalActorNumber()
         );
+        photonView.RPC("SetNextTurn", RpcTarget.AllBuffered);
     }
 
     void TransferOwnerships() {

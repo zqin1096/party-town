@@ -78,4 +78,25 @@ public class CardContainer : MonoBehaviourPun {
             );
         }
     }
+
+    public void ToggleSelect() {
+        if (GameManager.instance.currentPlayer == GameManager.GetLocal()) {
+            if (GameManager.GetLocal().getSelectedCard() == null) {
+                transform.position = new Vector2(transform.position.x, transform.position.y + 5);
+                GameManager.GetLocal().setSelectedCard(this);
+            } else {
+                if (GameManager.GetLocal().getSelectedCard() == this) {
+                    transform.position = new Vector2(transform.position.x, transform.position.y - 5);
+                    GameManager.GetLocal().setSelectedCard(null);
+                } else {
+                    GameManager.GetLocal().getSelectedCard().transform.position =
+                        new Vector2(GameManager.GetLocal().getSelectedCard().transform.position.x,
+                                   GameManager.GetLocal().getSelectedCard().transform.position.y - 5);
+
+                    transform.position = new Vector2(transform.position.x, transform.position.y + 5);
+                    GameManager.GetLocal().setSelectedCard(this);
+                }
+            }
+        }
+    }
 }

@@ -362,7 +362,7 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls:
         - m_Target: {fileID: 6764367282641117391}
-          m_MethodName: DoEffect
+          m_MethodName: ToggleSelect
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}

@@ -4,31 +4,18 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CardMap {
-  public static Card GetCardInstance(string cardNo) {
-    // Debug.LogFormat("CardMap.GetCardInstance(): cardNo: {0}", cardNo);
+    public static Card GetCardInstance(string cardNo) {
+        // Debug.LogFormat("CardMap.GetCardInstance(): cardNo: {0}", cardNo);
 
-    switch (cardNo) {
-      case "0":
-          return new AttackCard();
-      case "1":
-          return new HealCard();
-      case "2":
+        switch (cardNo) {
+            case "0":
+                return new AttackCard();
+            case "1":
+                return new HealCard();
+            case "2":
                 return new DefenseCard();
-      default:
-          throw new System.InvalidOperationException("CardMap.GetCardInstance(): cardNo wrong");
+            default:
+                throw new System.InvalidOperationException("CardMap.GetCardInstance(): cardNo wrong");
+        }
     }
-  }
-
-  // public static Action<PlayerController, PlayerController> GetCardEffect(string cardNo) {
-  //   // Debug.LogFormat("CardMap.GetCardEffect(): cardNo: {0}", cardNo);
-
-  //   switch (cardNo) {
-  //     case "0":
-  //         return new AttackCard().Effect();
-  //     case "1":
-  //         return new HealCard().Effect();
-  //     default:
-  //         throw new System.InvalidOperationException("CardMap.GetCardEffect(): cardNo wrong");
-  //   }
-  // }
 }

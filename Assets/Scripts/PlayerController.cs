@@ -19,6 +19,28 @@ public class PlayerController : MonoBehaviourPun {
     public Player player;
     public Dictionary<String, String> state;
 
+    private CardContainer selectedCard;
+
+    public CardContainer getSelectedCard() {
+        return selectedCard;
+    }
+
+    public void setSelectedCard(CardContainer card) {
+        selectedCard = card;
+    }
+
+    public void EndTurn() {
+        if (selectedCard != null) {
+            selectedCard.transform.position = new Vector2(selectedCard.transform.position.x, selectedCard.transform.position.y - 5);
+            selectedCard = null;
+        }
+        GameManager.instance.photonView.RPC("SetNextTurn", RpcTarget.All);
+    }
+
+    public void StartTurn() {
+        // Draw 2 more cards.
+    }
+
     [PunRPC]
     void Initialize(Player player, Dictionary<String, String> playerState) {
         Debug.LogFormat(
@@ -198,8 +220,8 @@ public class PlayerController : MonoBehaviourPun {
         Dictionary<string, string> localState,
         Dictionary<string, string> remoteState
     ) {
-        int localHPInt = (int) Int64.Parse(localState["hp"]);
-        int remoteHPInt = (int) Int64.Parse(remoteState["hp"]);
+        int localHPInt = (int)Int64.Parse(localState["hp"]);
+        int remoteHPInt = (int)Int64.Parse(remoteState["hp"]);
 
         if (localHPInt < 1) {
             if (remoteHPInt > 0) {
