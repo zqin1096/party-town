@@ -5,6 +5,7 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviourPun {
     public GameObject deck;
@@ -35,7 +36,7 @@ public class PlayerController : MonoBehaviourPun {
         if (player.IsLocal) {
             this.username.text = player.NickName;
             this.remoteUsername.text = player.GetNext().NickName;
-            InitializeCards(4);
+            InitializeCards(6);
         } else {
         }
     }
@@ -70,6 +71,7 @@ public class PlayerController : MonoBehaviourPun {
             localActorNumber,
             statesInString
         );
+        int originHP = Int16.Parse(GameManager.GetLocal().state["hp"]);
 
         Dictionary<string, string> localState = states[localActorNumber - 1];
         Dictionary<string, string> remoteState = states[2 - localActorNumber];
@@ -85,6 +87,32 @@ public class PlayerController : MonoBehaviourPun {
             EndGameIfNecessary(localState, remoteState);
         } else {
             this.state = remoteState;
+        }
+
+        int currentHP = Int16.Parse(localState["hp"]);
+        if(originHP - currentHP == 1 && this.player.IsLocal)
+        {
+            int defenseCardIdx = -1;
+            foreach (Transform child in this.deck.transform)
+            {
+                CardContainer cc = child.GetComponent<CardContainer>();
+                if (child.GetComponent<CardContainer>().card.no == "2")
+                {
+                    defenseCardIdx = child.GetComponent<CardContainer>().idxOnDeck;
+                    break;
+                }
+            }
+            if (defenseCardIdx != -1)
+            {
+                Debug.LogFormat("A defense card can be used! Index: {0}", defenseCardIdx);
+
+                this.RemoveCard(defenseCardIdx, 0);
+            }
+        }
+        if(localState["hp"]=="0" || remoteState["hp"] == "0")
+        {
+            Debug.LogFormat("Game Ends!");
+            SceneManager.LoadScene("End");
         }
     }
 

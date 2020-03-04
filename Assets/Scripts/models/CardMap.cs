@@ -12,6 +12,8 @@ public class CardMap {
           return new AttackCard();
       case "1":
           return new HealCard();
+      case "2":
+                return new DefenseCard();
       default:
           throw new System.InvalidOperationException("CardMap.GetCardInstance(): cardNo wrong");
     }

@@ -29,7 +29,7 @@ public class CardContainer : MonoBehaviourPun {
     }
 
     public Card CreateRandomCard() {
-        int cardNo = UnityEngine.Random.Range(0, 2);
+        int cardNo = UnityEngine.Random.Range(0, 3);
         return CardMap.GetCardInstance(cardNo.ToString());
     }
 
@@ -43,6 +43,12 @@ public class CardContainer : MonoBehaviourPun {
             GameManager.GetLocal().player.ActorNumber,
             GameManager.GetRemote().player.ActorNumber
         );
+
+        // Defense card should not be used
+        if (this.card.no == "2"){
+            return;
+        }
+
 
         if (GameManager.GetLocal().HasTurn()) {
             this.card.Effect(
