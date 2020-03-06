@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
+using UnityEngine.EventSystems;
 
 public class CardContainer : MonoBehaviourPun {
     public Card card;
@@ -34,6 +35,7 @@ public class CardContainer : MonoBehaviourPun {
     }
 
     public void DoEffect() {
+        /*
         Debug.LogFormat(
             "CardContainer.DoEffect(), HasTurn: {0}, idxOnDeck: {1}, cardLabel: {2}, effectType: {3}, localActorNo: {4}, remoteActorNo: {5}",
             GameManager.GetLocal().HasTurn(),
@@ -43,60 +45,88 @@ public class CardContainer : MonoBehaviourPun {
             GameManager.GetLocal().player.ActorNumber,
             GameManager.GetRemote().player.ActorNumber
         );
+        */
+        Debug.Log("DoEffect() is called.");
 
         // Defense card should not be used
-        if (this.card.no == "2"){
+        /*
+        if (this.card.no == "2") {
             return;
         }
+        */
 
 
-        if (GameManager.GetLocal().HasTurn()) {
-            this.card.Effect(
-                GameManager.GetPlayerStates(),
-                GameManager.GetLocalActorNumber()
-            );
+        this.card.Effect(
+            GameManager.GetPlayerStates(),
+            GameManager.GetLocalActorNumber()
+        );
 
-            GameManager.GetLocal().photonView.RPC(
-                "UpdateState",
-                RpcTarget.AllBuffered,
-                GameManager.GetPlayerStates(),
-                GameManager.GetLocalActorNumber()
-            );
+        GameManager.GetLocal().photonView.RPC(
+            "UpdateState",
+            RpcTarget.AllBuffered,
+            GameManager.GetPlayerStates(),
+            GameManager.GetLocalActorNumber()
+        );
 
-            GameManager.GetRemote().photonView.RPC(
-                "UpdateState",
-                RpcTarget.AllBuffered,
-                GameManager.GetPlayerStates(),
-                GameManager.GetLocalActorNumber()
-            );
+        GameManager.GetRemote().photonView.RPC(
+            "UpdateState",
+            RpcTarget.AllBuffered,
+            GameManager.GetPlayerStates(),
+            GameManager.GetLocalActorNumber()
+        );
 
-            GameManager.GetLocal().photonView.RPC(
-                "RemoveCard",
-                RpcTarget.AllBuffered,
-                this.idxOnDeck,
-                GameManager.GetLocalActorNumber()
-            );
+        GameManager.GetLocal().photonView.RPC(
+            "RemoveCard",
+            RpcTarget.AllBuffered,
+            this.idxOnDeck,
+            GameManager.GetLocalActorNumber()
+        );
+    }
+
+    void Update() {
+        if (GameManager.instance.currentPlayer == GameManager.GetLocal() && !this.card.isPassive) {
+            gameObject.GetComponent<EventTrigger>().enabled = true;
+            changeAlpha(true);
+        } else {
+            gameObject.GetComponent<EventTrigger>().enabled = false;
+            changeAlpha(false);
         }
+    }
+
+    private void changeAlpha(bool canBePlayed) {
+        Color color = gameObject.GetComponent<Image>().color;
+        if (canBePlayed) {
+            color.a = 1f;
+        } else {
+            color.a = 0.45f;
+        }
+        gameObject.GetComponent<Image>().color = color;
     }
 
     public void ToggleSelect() {
-        if (GameManager.instance.currentPlayer == GameManager.GetLocal()) {
-            if (GameManager.GetLocal().getSelectedCard() == null) {
+        Debug.Log("Toggle select card.");
+        if (GameManager.GetLocal().getSelectedCard() == null) {
+            transform.position = new Vector2(transform.position.x, transform.position.y + 5);
+            GameManager.GetLocal().setSelectedCard(this);
+            GameUI.instance.TogglePlayButton(true);
+        } else {
+            if (GameManager.GetLocal().getSelectedCard() == this) {
+                transform.position = new Vector2(transform.position.x, transform.position.y - 5);
+                GameManager.GetLocal().setSelectedCard(null);
+                GameUI.instance.TogglePlayButton(false);
+            } else {
+                GameManager.GetLocal().getSelectedCard().transform.position =
+                    new Vector2(GameManager.GetLocal().getSelectedCard().transform.position.x,
+                               GameManager.GetLocal().getSelectedCard().transform.position.y - 5);
+
                 transform.position = new Vector2(transform.position.x, transform.position.y + 5);
                 GameManager.GetLocal().setSelectedCard(this);
-            } else {
-                if (GameManager.GetLocal().getSelectedCard() == this) {
-                    transform.position = new Vector2(transform.position.x, transform.position.y - 5);
-                    GameManager.GetLocal().setSelectedCard(null);
-                } else {
-                    GameManager.GetLocal().getSelectedCard().transform.position =
-                        new Vector2(GameManager.GetLocal().getSelectedCard().transform.position.x,
-                                   GameManager.GetLocal().getSelectedCard().transform.position.y - 5);
-
-                    transform.position = new Vector2(transform.position.x, transform.position.y + 5);
-                    GameManager.GetLocal().setSelectedCard(this);
-                }
             }
         }
+        Debug.Log("Current player: " + GameManager.instance.currentPlayer.player.NickName);
+        if (GameManager.instance.currentPlayer.getSelectedCard() != null) {
+            Debug.Log("Current card: " + GameManager.instance.currentPlayer.getSelectedCard().card.label);
+        }
     }
+
 }

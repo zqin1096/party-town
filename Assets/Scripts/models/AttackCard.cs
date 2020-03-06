@@ -9,6 +9,7 @@ public class AttackCard : Card {
         this.label = "Attack";
         this.desc = "This attacks your enemy";
         this.effectType = EffectType.Enemy;
+        this.isPassive = false;
     }
 
     public override void Effect(Dictionary<string, string>[] states, int callerActorNumber) {

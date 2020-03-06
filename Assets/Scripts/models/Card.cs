@@ -11,5 +11,8 @@ public class Card {
     public string label;
     public EffectType effectType;
 
+    // If a card is passive, it can only be used to response.
+    public bool isPassive;
+
     public virtual void Effect(Dictionary<string, string>[] states, int callerActorNumber) { }
 }

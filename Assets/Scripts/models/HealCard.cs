@@ -9,6 +9,7 @@ public class HealCard : Card {
         this.label = "Heal";
         this.desc = "This heals yourself";
         this.effectType = EffectType.Self;
+        this.isPassive = false;
     }
 
     public override void Effect(Dictionary<string, string>[] states, int callerActorNumber) {

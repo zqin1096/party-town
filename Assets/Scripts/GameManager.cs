@@ -25,6 +25,8 @@ public class GameManager : MonoBehaviourPun {
             GameManager.GetLocal().StartTurn();
         }
         GameUI.instance.ToggleEndTurnButton(currentPlayer == GameManager.GetLocal());
+        GameUI.instance.SetActivePlayButton(currentPlayer == GameManager.GetLocal());
+        GameUI.instance.TogglePlayButton(false);
     }
 
     public static int GetLocalActorNumber() {
