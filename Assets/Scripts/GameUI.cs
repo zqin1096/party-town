@@ -7,6 +7,7 @@ using TMPro;
 public class GameUI : MonoBehaviour {
     public Button endTurnButton;
     public Button playButton;
+    public Image timeBar;
 
     public static GameUI instance;
 
@@ -34,5 +35,9 @@ public class GameUI : MonoBehaviour {
 
     public void SetActivePlayButton(bool active) {
         playButton.gameObject.SetActive(active);
+    }
+
+    public void SetTimerActive(bool active) {
+        timeBar.gameObject.SetActive(active);
     }
 }

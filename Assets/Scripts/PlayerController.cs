@@ -44,7 +44,7 @@ public class PlayerController : MonoBehaviourPun {
     }
 
     public void StartTurn() {
-        // Draw 2 more cards.
+        InitializeCards(2);
     }
 
     [PunRPC]
@@ -64,7 +64,7 @@ public class PlayerController : MonoBehaviourPun {
         if (player.IsLocal) {
             this.username.text = player.NickName;
             this.remoteUsername.text = player.GetNext().NickName;
-            InitializeCards(6);
+            InitializeCards(4);
         } else {
         }
     }
