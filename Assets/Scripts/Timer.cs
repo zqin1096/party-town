@@ -22,7 +22,8 @@ public class Timer : MonoBehaviour {
             timeLeft -= Time.deltaTime;
             timeBar.fillAmount = timeLeft / maxTime;
         } else {
-
+            GameUI.instance.OnEndTurnButton();
+            ResetTimer();
         }
     }
 
