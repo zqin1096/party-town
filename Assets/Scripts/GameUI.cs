@@ -7,7 +7,10 @@ using TMPro;
 public class GameUI : MonoBehaviour {
     public Button endTurnButton;
     public Button playButton;
+    public Button responseButton;
+    public Button skipButton;
     public Image timeBar;
+    public Text winText;
 
     public static GameUI instance;
 
@@ -15,14 +18,53 @@ public class GameUI : MonoBehaviour {
         instance = this;
     }
 
+    void Update() {
+        SetActiveEndTurnButton(GameManager.instance.currentPlayer == GameManager.GetLocal() && !GameManager.GetLocal().GetIsWaitingResponse() && !GameManager.isGameEnded);
+        SetTimerActive((GameManager.instance.currentPlayer == GameManager.GetLocal() && !GameManager.GetLocal().GetIsWaitingResponse() && !GameManager.isGameEnded) || (GameManager.GetLocal().GetIsGettingRequest()));
+        SetActivePlayButton(GameManager.instance.currentPlayer == GameManager.GetLocal() && !GameManager.GetLocal().GetIsWaitingResponse());
+        TogglePlayButton(GameManager.GetLocal().getSelectedCard() != null);
+        SetActiveResponseButton(GameManager.GetLocal().GetIsGettingRequest());
+        ToggleResponseButton(GameManager.GetLocal().getSelectedCard() != null);
+        SetActiveSkipButton(GameManager.GetLocal().GetIsGettingRequest());
+    }
+
+    // Response button.
+    public void SetActiveResponseButton(bool active) {
+        responseButton.gameObject.SetActive(active);
+    }
+
+    public void ToggleResponseButton(bool toggle) {
+        responseButton.interactable = toggle;
+    }
+
+    public void OnResponseButton() {
+        GameManager.GetLocal().getSelectedCard().DoResponse();
+        GameManager.GetLocal().SendResponse(true);
+    }
+
+    // Skip button.
+    public void SetActiveSkipButton(bool active) {
+        skipButton.gameObject.SetActive(active);
+    }
+
+    public void OnSkipButton() {
+        GameManager.GetLocal().SendResponse(false);
+    }
+
+    // End turn button.
     public void OnEndTurnButton() {
         GameManager.GetLocal().EndTurn();
+    }
+
+    public void SetActiveEndTurnButton(bool active) {
+        endTurnButton.gameObject.SetActive(active);
     }
 
     public void ToggleEndTurnButton(bool toggle) {
         endTurnButton.interactable = toggle;
     }
 
+    // Play button.
     public void OnPlayButton() {
         Debug.Log("Play button clicked.");
         GameManager.instance.currentPlayer.getSelectedCard().DoEffect();
@@ -37,7 +79,13 @@ public class GameUI : MonoBehaviour {
         playButton.gameObject.SetActive(active);
     }
 
+    // Timer.
     public void SetTimerActive(bool active) {
         timeBar.gameObject.SetActive(active);
+    }
+
+    public void SetWinText(string text) {
+        winText.gameObject.SetActive(true);
+        winText.text = text;
     }
 }

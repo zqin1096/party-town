@@ -9,20 +9,27 @@ public class AttackCard : Card {
         this.label = "Attack";
         this.desc = "This attacks your enemy";
         this.effectType = EffectType.Enemy;
-        this.isPassive = false;
     }
 
-    public override void Effect(Dictionary<string, string>[] states, int callerActorNumber) {
-        Debug.LogFormat(
-            "AttackCard.Effect(), callerActorNumber: {0}",
-            callerActorNumber
-        );
+    public override bool CanSelect() {
+        if (GameManager.isGameEnded) {
+            return false;
+        }
+        // An Attack card can be selected when the local player has the turn and is not waiting for response.
+        if (GameManager.GetLocal() == GameManager.instance.currentPlayer && !GameManager.GetLocal().GetIsWaitingResponse()) {
+            return true;
+        }
+        // An Attack card can be selected when the local player receives a request of the Attack card.
+        if (GameManager.GetLocal().GetIsGettingRequest() && GameManager.GetLocal().getRequestedCard() == this.label) {
+            return true;
+        }
+        return false;
+    }
 
-        Dictionary<string, string> localState = states[callerActorNumber - 1];
-        Dictionary<string, string> remoteState = states[2 - callerActorNumber];
-        remoteState["hp"] = (Int64.Parse(remoteState["hp"]) - 1).ToString();
-
-        localState["turn"] = (Int64.Parse(localState["turn"]) - 1).ToString();
-        remoteState["turn"] = (Int64.Parse(remoteState["turn"]) + 1).ToString();
+    public override void PlayCard() {
+        // When a players uses the Attack card, this player is waiting for response.
+        GameManager.GetLocal().SetIsWaitingResponse(true);
+        // Inform the remote player that you are playing an "Attack" card and need a "Defense" card for response.
+        GameManager.GetRemote().photonView.RPC("GetRequest", GameManager.GetRemote().player, this.label, "Defense");
     }
 }

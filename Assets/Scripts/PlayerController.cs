@@ -5,7 +5,6 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviourPun {
     public GameObject deck;
@@ -14,25 +13,59 @@ public class PlayerController : MonoBehaviourPun {
     public Text messageBox;
     public Text username;
     public Text remoteUsername;
-    public Text turn;
 
     public Player player;
-    public Dictionary<String, String> state;
 
     private CardContainer selectedCard;
+    private bool isWaitingResponse;
+    private bool isGettingRequest;
+    public static int maxHP = 2;
+    private int currentHP;
+    private string enemyCard;
+    private string requestedCard;
 
-    void Update() {
-        // Does NOT work for player2 if TogglePlayButton is called here. 
-        // GameUI.instance.TogglePlayButton(selectedCard != null);
+    public string GetEnemyCard() {
+        return this.enemyCard;
     }
 
+    public int GetCurrentHP() {
+        return this.currentHP;
+    }
 
-    public CardContainer getSelectedCard() {
-        return selectedCard;
+    public void SetCurrentHP(int hp) {
+        this.currentHP = hp;
+    }
+
+    public void SetIsWaitingResponse(bool value) {
+        this.isWaitingResponse = value;
+    }
+
+    public bool GetIsWaitingResponse() {
+        return this.isWaitingResponse;
+    }
+
+    public void SetIsGettingRequest(bool value) {
+        this.isGettingRequest = value;
+    }
+
+    public bool GetIsGettingRequest() {
+        return this.isGettingRequest;
+    }
+
+    public void SetRequestedCard(string requestedCard) {
+        this.requestedCard = requestedCard;
+    }
+
+    public string getRequestedCard() {
+        return this.requestedCard;
     }
 
     public void setSelectedCard(CardContainer card) {
         selectedCard = card;
+    }
+
+    public CardContainer getSelectedCard() {
+        return this.selectedCard;
     }
 
     public void EndTurn() {
@@ -48,19 +81,9 @@ public class PlayerController : MonoBehaviourPun {
     }
 
     [PunRPC]
-    void Initialize(Player player, Dictionary<String, String> playerState) {
-        Debug.LogFormat(
-            "PlayerController.Initialize(): localActorNumber: {0}, playerActorNumber: {1}, IsLocal: {2}, IsMasterClient: {3}, NickName: {4}",
-            GameManager.GetLocalActorNumber(),
-            player.ActorNumber,
-            player.IsLocal,
-            PhotonNetwork.IsMasterClient,
-            player.NickName
-        );
-
+    void Initialize(Player player) {
+        this.currentHP = maxHP;
         this.player = player;
-        this.state = playerState;
-
         if (player.IsLocal) {
             this.username.text = player.NickName;
             this.remoteUsername.text = player.GetNext().NickName;
@@ -69,178 +92,63 @@ public class PlayerController : MonoBehaviourPun {
         }
     }
 
-
-    public bool HasTurn() {
-        return Int64.Parse(this.state["turn"]) > 0;
+    [PunRPC]
+    public void GetRequest(string enemyCard, string requestedCard) {
+        this.isGettingRequest = true;
+        this.enemyCard = enemyCard;
+        this.requestedCard = requestedCard;
     }
 
-    [PunRPC]
-    public void UpdateState(
-        Dictionary<String, String>[] states,
-        int callerActorNumber
-    ) {
-        string statesInString = "";
-        for (int i = 0; i < states.Length; i += 1) {
-            statesInString += "[player: " + i + "] ";
-            if (states[i] != null) {
-                foreach (KeyValuePair<string, string> entry in states[i]) {
-                    statesInString += entry.Key + ": " + entry.Value + ", ";
-                }
-            }
-            statesInString += "/ ";
-        }
-
-        int localActorNumber = GameManager.GetLocalActorNumber();
-
-        Debug.LogFormat(
-            "PlayerController.UpdateState(), player: {0}, isLocal: {1}, callerActorNumber: {2}, localActorNumber: {3}, states: {4}",
-            this.player,
-            this.player.IsLocal,
-            callerActorNumber,
-            localActorNumber,
-            statesInString
-        );
-        int originHP = Int16.Parse(GameManager.GetLocal().state["hp"]);
-
-        Dictionary<string, string> localState = states[localActorNumber - 1];
-        Dictionary<string, string> remoteState = states[2 - localActorNumber];
-
-        if (this.player.IsLocal) {
-            this.state = localState;
-            localHP.text = localState["hp"].ToString();
-            remoteHP.text = remoteState["hp"].ToString();
-            turn.text = Int64.Parse(localState["turn"]) > 0
-              ? GameManager.GetLocal().player.NickName
-              : GameManager.GetRemote().player.NickName;
-
-            EndGameIfNecessary(localState, remoteState);
-        } else {
-            this.state = remoteState;
-        }
-
-        int currentHP = Int16.Parse(localState["hp"]);
-        if (originHP - currentHP == 1 && this.player.IsLocal) {
-            int defenseCardIdx = -1;
-            foreach (Transform child in this.deck.transform) {
-                CardContainer cc = child.GetComponent<CardContainer>();
-                if (child.GetComponent<CardContainer>().card.no == "2") {
-                    defenseCardIdx = child.GetComponent<CardContainer>().idxOnDeck;
+    public void SendResponse(bool response) {
+        this.isGettingRequest = false;
+        if (response) {
+            switch (this.enemyCard) {
+                case "Attack":
                     break;
-                }
-            }
-            if (defenseCardIdx != -1) {
-                Debug.LogFormat("A defense card can be used! Index: {0}", defenseCardIdx);
-
-                this.RemoveCard(defenseCardIdx, 0);
-            }
-        }
-        if (localState["hp"] == "0" || remoteState["hp"] == "0") {
-            Debug.LogFormat("Game Ends!");
-            SceneManager.LoadScene("End");
-        }
-    }
-
-    [PunRPC]
-    public void RemoveCard(
-        int idxOnDeck,
-        int callerActorNumber
-    ) {
-        Debug.LogFormat(
-            "PlayerController.RemoveCard(), ActorNumber: {0}, idxOnDeck: {1}, callerActorNumber: {2}",
-            this.player.ActorNumber,
-            idxOnDeck,
-            callerActorNumber
-        );
-
-        if (this.player.IsLocal) {
-            CardContainer cardContainer = null;
-            foreach (Transform child in this.deck.transform) {
-                CardContainer cc = child.GetComponent<CardContainer>();
-                if (child.GetComponent<CardContainer>().idxOnDeck == idxOnDeck) {
-                    cardContainer = cc;
+                default:
                     break;
-                }
             }
-
-            if (cardContainer != null) {
-                Debug.LogFormat(
-                    "PlayerController.RemoveCard, found, remove card of idx: {0}",
-                    idxOnDeck
-                );
-
-                Destroy(cardContainer.gameObject);
-            }
-
         } else {
+            switch (this.enemyCard) {
+                case "Attack":
+                    this.currentHP--;
+                    GameManager.GetLocal().photonView.RPC("UpdateHealth", RpcTarget.Others, currentHP, false);
+                    GameManager.GetLocal().photonView.RPC("UpdateHealth", player, currentHP, true);
+                    GameManager.instance.CheckWinCondition();
+                    break;
+                default:
+                    break;
+            }
+        }
+        this.enemyCard = null;
+        this.requestedCard = null;
+        GameManager.GetRemote().photonView.RPC("GetResponse", GameManager.GetRemote().player);
+    }
+
+    [PunRPC]
+    void UpdateHealth(int hp, bool isMine) {
+        if (!isMine) {
+            remoteHP.text = hp.ToString();
+        } else {
+            localHP.text = hp.ToString();
         }
     }
 
     [PunRPC]
-    public void DeclareGameEnd(
-        int winnerActorNumber,
-        int callerActorNumber
-    ) {
-        Debug.LogFormat(
-            "PlayerController.DeclareGameEnd(), winnerActorNumber: {0}, callerActorNumber: {1}",
-            winnerActorNumber,
-            callerActorNumber
-        );
-
-        if (this.player.IsLocal) {
-            if (winnerActorNumber == 0) {
-                this.messageBox.text = "Draw";
-            } else if (this.player.ActorNumber == winnerActorNumber) {
-                this.messageBox.text = "Player " + this.player.NickName + " has won!";
-            } else {
-                this.messageBox.text = "Player " + GameManager.GetRemote().player.NickName + " has won!";
-            }
-        } else {
-        }
+    public void GetResponse() {
+        this.isWaitingResponse = false;
     }
 
     void InitializeCards(int numOfCards) {
-        Debug.LogFormat(
-            "PlayerController.InitializeCards, ActorNumber: {0}, numOfCards: {1}",
-            this.player.ActorNumber,
-            numOfCards
-        );
-
         for (int i = 0; i < numOfCards; i++) {
             GameObject card = PhotonNetwork.Instantiate(
                 "CardContainer",
                 new Vector3(0, 0, 0),
                 Quaternion.identity
             );
-
             card.transform.SetParent(deck.transform, false);
             card.GetPhotonView().RPC("Initialize", RpcTarget.Others, i, false);
             card.GetPhotonView().RPC("Initialize", player, i, true);
-        }
-    }
-
-    void EndGameIfNecessary(
-        Dictionary<string, string> localState,
-        Dictionary<string, string> remoteState
-    ) {
-        int localHPInt = (int)Int64.Parse(localState["hp"]);
-        int remoteHPInt = (int)Int64.Parse(remoteState["hp"]);
-
-        if (localHPInt < 1) {
-            if (remoteHPInt > 0) {
-                this.photonView.RPC(
-                    "DeclareGameEnd",
-                    RpcTarget.AllBuffered,
-                    GameManager.GetLocalActorNumber(),
-                    GameManager.GetLocalActorNumber()
-                );
-            } else if (remoteHPInt < 1) {
-                this.photonView.RPC(
-                    "DeclareGameEnd",
-                    RpcTarget.AllBuffered,
-                    0,
-                    GameManager.GetLocalActorNumber()
-                );
-            }
         }
     }
 }

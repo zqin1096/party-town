@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Card {
+public abstract class Card {
     public Sprite suit;
 
     public string no;
@@ -11,8 +11,9 @@ public class Card {
     public string label;
     public EffectType effectType;
 
-    // If a card is passive, it can only be used to response.
-    public bool isPassive;
+    //public virtual void Effect(Dictionary<string, string>[] states, int callerActorNumber) { }
 
-    public virtual void Effect(Dictionary<string, string>[] states, int callerActorNumber) { }
+    public abstract void PlayCard();
+
+    public abstract bool CanSelect();
 }

@@ -13,6 +13,8 @@ public class GameManager : MonoBehaviourPun {
     public static GameManager instance;
 
     public PlayerController currentPlayer;
+    public float postGameTime = 30f;
+    public static bool isGameEnded;
 
     [PunRPC]
     void SetNextTurn() {
@@ -24,10 +26,6 @@ public class GameManager : MonoBehaviourPun {
         if (currentPlayer == GameManager.GetLocal()) {
             GameManager.GetLocal().StartTurn();
         }
-        GameUI.instance.ToggleEndTurnButton(currentPlayer == GameManager.GetLocal());
-        GameUI.instance.SetActivePlayButton(currentPlayer == GameManager.GetLocal());
-        GameUI.instance.TogglePlayButton(false);
-        GameUI.instance.SetTimerActive(currentPlayer == GameManager.GetLocal());
     }
 
     public static int GetLocalActorNumber() {
@@ -35,8 +33,6 @@ public class GameManager : MonoBehaviourPun {
     }
 
     public static int GetRemoteActorNumber() {
-        // 1 => 2
-        // 2 => 1
         return 3 - PhotonNetwork.LocalPlayer.ActorNumber;
     }
 
@@ -45,22 +41,11 @@ public class GameManager : MonoBehaviourPun {
     }
 
     public static PlayerController GetRemote() {
-        // 1 => 1
-        // 2 => 0
         return GameManager.instance.players[GameManager.GetRemoteActorNumber() - 1];
     }
 
     public static PlayerController GetPlayer(int actorNumber) {
         return GameManager.instance.players[actorNumber - 1];
-    }
-
-    public static Dictionary<string, string>[] GetPlayerStates() {
-        GameManager instance = GameManager.instance;
-        Dictionary<string, string>[] states = new Dictionary<string, string>[2];
-        for (int i = 0; i < instance.players.Length; i += 1) {
-            states[i] = instance.players[i].state;
-        }
-        return states;
     }
 
     void Awake() {
@@ -81,41 +66,36 @@ public class GameManager : MonoBehaviourPun {
     }
 
     void InitializePlayers() {
-        Dictionary<String, String> player1State = PlayerState.getInstance();
-        player1State["turn"] = "1";
-
-        player1.photonView.RPC(
-            "Initialize",
-            RpcTarget.AllBuffered,
-            PhotonNetwork.CurrentRoom.GetPlayer(1),
-            player1State
-        );
-
-        player2.photonView.RPC(
-            "Initialize",
-            RpcTarget.AllBuffered,
-            PhotonNetwork.CurrentRoom.GetPlayer(2),
-            PlayerState.getInstance()
-        );
-
-        player1.photonView.RPC(
-            "UpdateState",
-            RpcTarget.AllBuffered,
-            GameManager.GetPlayerStates(),
-            GameManager.GetLocalActorNumber()
-        );
-
-        player2.photonView.RPC(
-            "UpdateState",
-            RpcTarget.AllBuffered,
-            GameManager.GetPlayerStates(),
-            GameManager.GetLocalActorNumber()
-        );
+        player1.photonView.RPC("Initialize", RpcTarget.AllBuffered, PhotonNetwork.CurrentRoom.GetPlayer(1));
+        player2.photonView.RPC("Initialize", RpcTarget.AllBuffered, PhotonNetwork.CurrentRoom.GetPlayer(2));
         photonView.RPC("SetNextTurn", RpcTarget.AllBuffered);
     }
 
     void TransferOwnerships() {
         player1.photonView.TransferOwnership(1);
         player2.photonView.TransferOwnership(2);
+    }
+
+    public void CheckWinCondition() {
+        if (GetLocal().GetCurrentHP() == 0) {
+            photonView.RPC("WinGame", RpcTarget.All);
+        }
+    }
+
+    [PunRPC]
+    void WinGame() {
+        isGameEnded = true;
+        if (GetLocal().GetCurrentHP() != 0) {
+            GameUI.instance.SetWinText("You win!");
+        } else {
+            GameUI.instance.SetWinText("You lose!");
+        }
+        Invoke("GoBackToMenu", postGameTime);
+    }
+
+    void GoBackToMenu() {
+        GameManager.isGameEnded = false;
+        PhotonNetwork.LeaveRoom();
+        NetworkManager.instance.CreateScene("Menu");
     }
 }

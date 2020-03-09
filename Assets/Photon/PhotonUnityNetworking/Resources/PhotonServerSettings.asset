@@ -42,5 +42,8 @@ MonoBehaviour:
   - CreateScene
   - RemoveCard
   - DeclareGameEnd
+  - GetRequest
+  - GetResponse
+  - WinGame
   DisableAutoOpenWizard: 1
   ShowSettings: 0

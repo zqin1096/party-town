@@ -9,20 +9,22 @@ public class HealCard : Card {
         this.label = "Heal";
         this.desc = "This heals yourself";
         this.effectType = EffectType.Self;
-        this.isPassive = false;
     }
 
-    public override void Effect(Dictionary<string, string>[] states, int callerActorNumber) {
-        Debug.LogFormat(
-            "HealCard.Effect(), callerActorNumber: {0}",
-            callerActorNumber
-        );
+    public override bool CanSelect() {
+        if (GameManager.isGameEnded) {
+            return false;
+        }
+        if (GameManager.GetLocal() == GameManager.instance.currentPlayer && GameManager.GetLocal().GetCurrentHP() < PlayerController.maxHP) {
+            return true;
+        }
+        return false;
+    }
 
-        Dictionary<string, string> localState = states[callerActorNumber - 1];
-        Dictionary<string, string> remoteState = states[2 - callerActorNumber];
-        localState["hp"] = (Int64.Parse(localState["hp"]) + 1).ToString();
-
-        localState["turn"] = (Int64.Parse(localState["turn"]) - 1).ToString();
-        remoteState["turn"] = (Int64.Parse(remoteState["turn"]) + 1).ToString();
+    public override void PlayCard() {
+        int hp = GameManager.GetLocal().GetCurrentHP() + 1;
+        GameManager.GetLocal().SetCurrentHP(hp);
+        GameManager.GetLocal().photonView.RPC("UpdateHealth", GameManager.GetRemote().player, hp, false);
+        GameManager.GetLocal().photonView.RPC("UpdateHealth", GameManager.GetLocal().player, hp, true);
     }
 }

@@ -16,16 +16,6 @@ public class CardContainer : MonoBehaviourPun {
     void Initialize(int idxOnDeck, bool isMine) {
         this.card = CreateRandomCard();
         this.label.text = this.card.label;
-
-        Debug.LogFormat(
-            "CardContainer.Initialize(): creating card, ActorNumber: {0}, isMine: {1}, idxOnDeck: {2}, cardNo: {3}, cardLabel: {4}",
-            PhotonNetwork.LocalPlayer.ActorNumber,
-            isMine,
-            idxOnDeck,
-            this.card.no,
-            this.card.label
-        );
-
         this.idxOnDeck = idxOnDeck;
     }
 
@@ -34,66 +24,29 @@ public class CardContainer : MonoBehaviourPun {
         return CardMap.GetCardInstance(cardNo.ToString());
     }
 
+    // Only the current player can call this method.
     public void DoEffect() {
-        /*
-        Debug.LogFormat(
-            "CardContainer.DoEffect(), HasTurn: {0}, idxOnDeck: {1}, cardLabel: {2}, effectType: {3}, localActorNo: {4}, remoteActorNo: {5}",
-            GameManager.GetLocal().HasTurn(),
-            this.idxOnDeck,
-            this.card.label,
-            this.card.effectType,
-            GameManager.GetLocal().player.ActorNumber,
-            GameManager.GetRemote().player.ActorNumber
-        );
-        */
-        Debug.Log("DoEffect() is called.");
+        this.card.PlayCard();
+        PhotonNetwork.Destroy(this.gameObject);
+        GameManager.GetLocal().setSelectedCard(null);
+    }
 
-        // Defense card should not be used
-        /*
-        if (this.card.no == "2") {
-            return;
-        }
-        */
-
-
-        this.card.Effect(
-            GameManager.GetPlayerStates(),
-            GameManager.GetLocalActorNumber()
-        );
-
-        GameManager.GetLocal().photonView.RPC(
-            "UpdateState",
-            RpcTarget.AllBuffered,
-            GameManager.GetPlayerStates(),
-            GameManager.GetLocalActorNumber()
-        );
-
-        GameManager.GetRemote().photonView.RPC(
-            "UpdateState",
-            RpcTarget.AllBuffered,
-            GameManager.GetPlayerStates(),
-            GameManager.GetLocalActorNumber()
-        );
-
-        GameManager.GetLocal().photonView.RPC(
-            "RemoveCard",
-            RpcTarget.AllBuffered,
-            this.idxOnDeck,
-            GameManager.GetLocalActorNumber()
-        );
+    public void DoResponse() {
+        PhotonNetwork.Destroy(this.gameObject);
+        GameManager.GetLocal().setSelectedCard(null);
     }
 
     void Update() {
-        if (GameManager.instance.currentPlayer == GameManager.GetLocal() && !this.card.isPassive) {
+        if (this.card.CanSelect()) {
             gameObject.GetComponent<EventTrigger>().enabled = true;
-            changeAlpha(true);
+            ChangeAlpha(true);
         } else {
             gameObject.GetComponent<EventTrigger>().enabled = false;
-            changeAlpha(false);
+            ChangeAlpha(false);
         }
     }
 
-    private void changeAlpha(bool canBePlayed) {
+    private void ChangeAlpha(bool canBePlayed) {
         Color color = gameObject.GetComponent<Image>().color;
         if (canBePlayed) {
             color.a = 1f;
@@ -108,12 +61,12 @@ public class CardContainer : MonoBehaviourPun {
         if (GameManager.GetLocal().getSelectedCard() == null) {
             transform.position = new Vector2(transform.position.x, transform.position.y + 5);
             GameManager.GetLocal().setSelectedCard(this);
-            GameUI.instance.TogglePlayButton(true);
+            // GameUI.instance.TogglePlayButton(true);
         } else {
             if (GameManager.GetLocal().getSelectedCard() == this) {
                 transform.position = new Vector2(transform.position.x, transform.position.y - 5);
                 GameManager.GetLocal().setSelectedCard(null);
-                GameUI.instance.TogglePlayButton(false);
+                // GameUI.instance.TogglePlayButton(false);
             } else {
                 GameManager.GetLocal().getSelectedCard().transform.position =
                     new Vector2(GameManager.GetLocal().getSelectedCard().transform.position.x,
@@ -128,5 +81,4 @@ public class CardContainer : MonoBehaviourPun {
             Debug.Log("Current card: " + GameManager.instance.currentPlayer.getSelectedCard().card.label);
         }
     }
-
 }

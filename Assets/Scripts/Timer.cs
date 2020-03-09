@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-
 public class Timer : MonoBehaviour {
-
     public Image timeBar;
-    public float maxTime = 10f;
+    public float maxTime = 30f;
     public float timeLeft;
-
 
     // Start is called before the first frame update
     void Start() {
@@ -22,8 +19,13 @@ public class Timer : MonoBehaviour {
             timeLeft -= Time.deltaTime;
             timeBar.fillAmount = timeLeft / maxTime;
         } else {
-            GameUI.instance.OnEndTurnButton();
-            ResetTimer();
+            if (GameManager.instance.currentPlayer == GameManager.GetLocal()) {
+                GameUI.instance.OnEndTurnButton();
+                ResetTimer();
+            } else if (GameManager.GetLocal().GetIsGettingRequest()) {
+                GameUI.instance.OnSkipButton();
+                ResetTimer();
+            }
         }
     }
 

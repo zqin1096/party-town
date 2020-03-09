@@ -57,7 +57,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
             PhotonNetwork.CurrentRoom.Name,
             sceneName
         );
-
         PhotonNetwork.LoadLevel(sceneName);
     }
 }
