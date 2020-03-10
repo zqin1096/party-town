@@ -13,8 +13,11 @@ public class PlayerController : MonoBehaviourPun {
     public Text messageBox;
     public Text username;
     public Text remoteUsername;
+    public Text localNumberOfCards;
+    public Text remoteNumberOfCards;
 
     public Player player;
+    public int numOfcards;
 
     private CardContainer selectedCard;
     private bool isWaitingResponse;
@@ -23,6 +26,11 @@ public class PlayerController : MonoBehaviourPun {
     private int currentHP;
     private string enemyCard;
     private string requestedCard;
+
+    void Update() {
+        localNumberOfCards.text = GameManager.GetLocal().numOfcards.ToString();
+        remoteNumberOfCards.text = GameManager.GetRemote().numOfcards.ToString();
+    }
 
     public string GetEnemyCard() {
         return this.enemyCard;
@@ -147,8 +155,27 @@ public class PlayerController : MonoBehaviourPun {
                 Quaternion.identity
             );
             card.transform.SetParent(deck.transform, false);
-            card.GetPhotonView().RPC("Initialize", RpcTarget.Others, i, false);
-            card.GetPhotonView().RPC("Initialize", player, i, true);
+            card.GetPhotonView().RPC("Initialize", RpcTarget.Others, false, null);
+            card.GetPhotonView().RPC("Initialize", player, true, null);
         }
+    }
+
+    [PunRPC]
+    public void RmoveCard() {
+        int random = UnityEngine.Random.Range(0, deck.transform.childCount);
+        Transform child = deck.transform.GetChild(random);
+        string label = child.GetComponent<CardContainer>().card.label;
+        child.GetComponent<CardContainer>().photonView.RPC("Use", GameManager.GetRemote().player, false);
+        child.GetComponent<CardContainer>().photonView.RPC("Use", GameManager.GetLocal().player, true);
+        PhotonNetwork.Destroy(child.gameObject);
+        GameManager.GetRemote().photonView.RPC("GetCard", GameManager.GetRemote().player, label);
+    }
+
+    [PunRPC]
+    public void GetCard(string label) {
+        GameObject card = PhotonNetwork.Instantiate("CardContainer", new Vector3(0, 0, 0), Quaternion.identity);
+        card.GetPhotonView().RPC("Initialize", RpcTarget.Others, false, label);
+        card.GetPhotonView().RPC("Initialize", player, true, label);
+        card.transform.SetParent(deck.transform, false);
     }
 }

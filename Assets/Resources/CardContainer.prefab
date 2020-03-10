@@ -320,7 +320,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   suitImage: {fileID: 6764367282419693059}
-  idxOnDeck: 0
   label: {fileID: 6764367282323684641}
 --- !u!114 &3513335021800797262
 MonoBehaviour:

@@ -45,5 +45,8 @@ MonoBehaviour:
   - GetRequest
   - GetResponse
   - WinGame
+  - Use
+  - RmoveCard
+  - GetCard
   DisableAutoOpenWizard: 1
   ShowSettings: 0

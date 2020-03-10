@@ -9,29 +9,65 @@ using UnityEngine.EventSystems;
 public class CardContainer : MonoBehaviourPun {
     public Card card;
     public Image suitImage;
-    public int idxOnDeck;
     public Text label;
 
     [PunRPC]
-    void Initialize(int idxOnDeck, bool isMine) {
-        this.card = CreateRandomCard();
-        this.label.text = this.card.label;
-        this.idxOnDeck = idxOnDeck;
+    void Initialize(bool isMine, string label) {
+        if (label == null) {
+            this.card = CreateRandomCard();
+            this.label.text = this.card.label;
+        } else {
+            switch (label) {
+                case "Attack":
+                    this.card = new AttackCard();
+                    break;
+                case "Defense":
+                    this.card = new DefenseCard();
+                    break;
+                case "Heal":
+                    this.card = new HealCard();
+                    break;
+                case "Take Card":
+                    this.card = new TakeCard();
+                    break;
+                default:
+                    break;
+            }
+            this.label.text = this.card.label;
+        }
+        if (isMine) {
+            GameManager.GetLocal().numOfcards++;
+        } else {
+            GameManager.GetRemote().numOfcards++;
+        }
+    }
+
+    [PunRPC]
+    void Use(bool isMine) {
+        if (isMine) {
+            GameManager.GetLocal().numOfcards--;
+        } else {
+            GameManager.GetRemote().numOfcards--;
+        }
     }
 
     public Card CreateRandomCard() {
-        int cardNo = UnityEngine.Random.Range(0, 3);
+        int cardNo = UnityEngine.Random.Range(0, 4);
         return CardMap.GetCardInstance(cardNo.ToString());
     }
 
     // Only the current player can call this method.
     public void DoEffect() {
         this.card.PlayCard();
+        photonView.RPC("Use", GameManager.GetRemote().player, false);
+        photonView.RPC("Use", GameManager.GetLocal().player, true);
         PhotonNetwork.Destroy(this.gameObject);
         GameManager.GetLocal().setSelectedCard(null);
     }
 
     public void DoResponse() {
+        photonView.RPC("Use", GameManager.GetRemote().player, false);
+        photonView.RPC("Use", GameManager.GetLocal().player, true);
         PhotonNetwork.Destroy(this.gameObject);
         GameManager.GetLocal().setSelectedCard(null);
     }
