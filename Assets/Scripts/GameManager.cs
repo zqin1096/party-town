@@ -77,7 +77,7 @@ public class GameManager : MonoBehaviourPun {
     }
 
     public void CheckWinCondition() {
-        if (GetLocal().GetCurrentHP() == 0) {
+        if (GetLocal().GetCurrentHP() <= 0) {
             photonView.RPC("WinGame", RpcTarget.All);
         }
     }
@@ -85,7 +85,7 @@ public class GameManager : MonoBehaviourPun {
     [PunRPC]
     void WinGame() {
         isGameEnded = true;
-        if (GetLocal().GetCurrentHP() != 0) {
+        if (GetLocal().GetCurrentHP() > 0) {
             GameUI.instance.SetWinText("You win!");
         } else {
             GameUI.instance.SetWinText("You lose!");

@@ -30,6 +30,9 @@ public class CardContainer : MonoBehaviourPun {
                 case "Take Card":
                     this.card = new TakeCard();
                     break;
+                case "Special Attack":
+                    this.card = new SpecialAttack();
+                    break;
                 default:
                     break;
             }
@@ -52,12 +55,25 @@ public class CardContainer : MonoBehaviourPun {
     }
 
     public Card CreateRandomCard() {
-        int cardNo = UnityEngine.Random.Range(0, 4);
-        return CardMap.GetCardInstance(cardNo.ToString());
+        int randomValue = UnityEngine.Random.Range(0, 100);
+        string cardNo = "";
+        if (0 <= randomValue && randomValue < 42) {
+            cardNo = "0";
+        } else if (42 <= randomValue && randomValue < 52) {
+            cardNo = "1";
+        } else if (52 <= randomValue && randomValue < 68) {
+            cardNo = "2";
+        } else if (68 <= randomValue && randomValue < 90) {
+            cardNo = "3";
+        } else if (90 <= randomValue && randomValue < 100) {
+            cardNo = "4";
+        }
+        return CardMap.GetCardInstance(cardNo);
     }
 
     // Only the current player can call this method.
     public void DoEffect() {
+        GameManager.instance.photonView.RPC("SetMessageBox", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + " uses " + GameManager.GetLocal().getSelectedCard().card.label);
         this.card.PlayCard();
         photonView.RPC("Use", GameManager.GetRemote().player, false);
         photonView.RPC("Use", GameManager.GetLocal().player, true);
@@ -66,6 +82,8 @@ public class CardContainer : MonoBehaviourPun {
     }
 
     public void DoResponse() {
+        string nickname = GameManager.GetLocal().player.NickName;
+        GameManager.instance.photonView.RPC("SetMessageBox", RpcTarget.All, nickname + " responses with " + GameManager.GetLocal().getSelectedCard().card.label);
         photonView.RPC("Use", GameManager.GetRemote().player, false);
         photonView.RPC("Use", GameManager.GetLocal().player, true);
         PhotonNetwork.Destroy(this.gameObject);

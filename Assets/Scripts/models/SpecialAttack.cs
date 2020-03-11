@@ -1,13 +1,12 @@
-using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AttackCard : Card {
-    public AttackCard() : base() {
-        this.no = "0";
-        this.label = "Attack";
-        this.desc = "This attacks your enemy";
+public class SpecialAttack : Card {
+    public SpecialAttack() : base() {
+        this.no = "4";
+        this.label = "Special Attack";
+        this.desc = "This attacks your enemy hard";
         this.effectType = EffectType.Enemy;
     }
 
@@ -17,10 +16,6 @@ public class AttackCard : Card {
         }
         // An Attack card can be selected when the local player has the turn and is not waiting for response.
         if (GameManager.GetLocal() == GameManager.instance.currentPlayer && !GameManager.GetLocal().GetIsWaitingResponse() && GameManager.GetLocal().numberOfAttack < 1) {
-            return true;
-        }
-        // An Attack card can be selected when the local player receives a request of the Attack card.
-        if (GameManager.GetLocal().GetIsGettingRequest() && GameManager.GetLocal().getRequestedCard() == this.label) {
             return true;
         }
         return false;

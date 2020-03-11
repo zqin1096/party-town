@@ -18,11 +18,12 @@ public class PlayerController : MonoBehaviourPun {
 
     public Player player;
     public int numOfcards;
+    public int numberOfAttack;
 
     private CardContainer selectedCard;
     private bool isWaitingResponse;
     private bool isGettingRequest;
-    public static int maxHP = 2;
+    public static int maxHP = 3;
     private int currentHP;
     private string enemyCard;
     private string requestedCard;
@@ -81,11 +82,12 @@ public class PlayerController : MonoBehaviourPun {
             selectedCard.transform.position = new Vector2(selectedCard.transform.position.x, selectedCard.transform.position.y - 5);
             selectedCard = null;
         }
+        this.numberOfAttack = 0;
         GameManager.instance.photonView.RPC("SetNextTurn", RpcTarget.All);
     }
 
     public void StartTurn() {
-        InitializeCards(2);
+        InitializeCards(1);
     }
 
     [PunRPC]
@@ -95,7 +97,7 @@ public class PlayerController : MonoBehaviourPun {
         if (player.IsLocal) {
             this.username.text = player.NickName;
             this.remoteUsername.text = player.GetNext().NickName;
-            InitializeCards(4);
+            InitializeCards(3);
         } else {
         }
     }
@@ -113,6 +115,8 @@ public class PlayerController : MonoBehaviourPun {
             switch (this.enemyCard) {
                 case "Attack":
                     break;
+                case "Special Attack":
+                    break;
                 default:
                     break;
             }
@@ -120,6 +124,16 @@ public class PlayerController : MonoBehaviourPun {
             switch (this.enemyCard) {
                 case "Attack":
                     this.currentHP--;
+                    GameManager.GetLocal().photonView.RPC("UpdateHealth", RpcTarget.Others, currentHP, false);
+                    GameManager.GetLocal().photonView.RPC("UpdateHealth", player, currentHP, true);
+                    GameManager.instance.CheckWinCondition();
+                    break;
+                case "Special Attack":
+                    int damage = UnityEngine.Random.Range(1, 3);
+                    this.currentHP -= damage;
+                    if (currentHP < 0) {
+                        currentHP = 0;
+                    }
                     GameManager.GetLocal().photonView.RPC("UpdateHealth", RpcTarget.Others, currentHP, false);
                     GameManager.GetLocal().photonView.RPC("UpdateHealth", player, currentHP, true);
                     GameManager.instance.CheckWinCondition();

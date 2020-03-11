@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Photon.Pun;
 
-public class GameUI : MonoBehaviour {
+public class GameUI : MonoBehaviourPun {
     public Button endTurnButton;
     public Button playButton;
     public Button responseButton;
     public Button skipButton;
     public Image timeBar;
     public Text winText;
+    public Text messageBox;
 
     public static GameUI instance;
-
     void Awake() {
         instance = this;
     }
@@ -87,5 +88,10 @@ public class GameUI : MonoBehaviour {
     public void SetWinText(string text) {
         winText.gameObject.SetActive(true);
         winText.text = text;
+    }
+
+    [PunRPC]
+    public void SetMessageBox(string s) {
+        messageBox.text = s;
     }
 }
