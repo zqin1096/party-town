@@ -15,7 +15,7 @@ public class HealCard : Card {
         if (GameManager.isGameEnded) {
             return false;
         }
-        if (GameManager.GetLocal() == GameManager.instance.currentPlayer && GameManager.GetLocal().GetCurrentHP() < PlayerController.maxHP) {
+        if (GameManager.GetLocal() == GameManager.instance.currentPlayer && GameManager.GetLocal().GetCurrentHP() < PlayerController.maxHP && !GameManager.GetLocal().GetIsWaitingResponse()) {
             return true;
         }
         return false;

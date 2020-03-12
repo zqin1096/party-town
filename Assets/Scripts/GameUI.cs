@@ -49,6 +49,12 @@ public class GameUI : MonoBehaviourPun {
     }
 
     public void OnSkipButton() {
+        if (GameManager.GetLocal().getSelectedCard() != null) {
+            CardContainer card = GameManager.GetLocal().getSelectedCard();
+            Vector2 move = new Vector2(card.transform.position.x, card.transform.position.y - 5);
+            card.transform.position = move;
+            GameManager.GetLocal().setSelectedCard(null);
+        }
         GameManager.GetLocal().SendResponse(false);
     }
 
