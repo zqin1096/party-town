@@ -47,6 +47,7 @@ public class PlayerController : MonoBehaviourPun {
     }
 
     public void SetCharacter(Character character){
+        Debug.Log("Player's character is set to " + character.name + "; Player name: "+ this.username.text);
         this.character = character;
         this.maxHP = character.maxHP;
     }

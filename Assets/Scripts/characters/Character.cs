@@ -5,13 +5,13 @@ using UnityEngine;
 public abstract class Character
 {
     
-    public int maxHP = 3;
+    public virtual int maxHP {get{return 3;}}
 
     // indicate if this character has certain skills on corresponding stages
-    public bool hasDrawingStageSkill = false;
-    public bool hasPlayingingStageSkill = false;
-    public bool hasEndingStageSkill = false;
-
+    public virtual bool hasDrawingStageSkill  {get{return false;}}
+    public virtual bool hasPlayingingStageSkill {get{return false;}}
+    public virtual bool hasEndingStageSkill {get{return false;}}
+    virtual public string name {get{return "default name";}}
 
     virtual public void DrawingStageSkill()
     {

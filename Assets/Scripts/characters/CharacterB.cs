@@ -8,8 +8,8 @@ using UnityEngine;
  * */
 public class CharacterB : Character
 {
-    public new int maxHP = 3;
-    public new bool hasDrawingStageSkill = true;
+    public override string name {get{return "Character B";}}
+    public override bool hasDrawingStageSkill {get{return true;}}
 
     public override void DrawingStageSkill()
     {
