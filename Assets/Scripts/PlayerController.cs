@@ -115,6 +115,7 @@ public class PlayerController : MonoBehaviourPun {
 
     public void StartTurn() {
         if(this.character.hasDrawingStageSkill){
+            Debug.LogFormat("Character should be using skills now");
             this.character.DrawingStageSkill();
         }else{
             InitializeCards(2);
@@ -123,10 +124,10 @@ public class PlayerController : MonoBehaviourPun {
 
     [PunRPC]
     void Initialize(Player player) {
-        if(GameManager.GetLocalActorNumber() == 1){
-            this.SetCharacter(new CharacterA());
-        }else{
+        if(GameManager.GetLocalActorNumber() == 1 && player.IsLocal){
             this.SetCharacter(new CharacterB());
+        }else if(GameManager.GetLocalActorNumber() == 2 && player.IsLocal){
+            this.SetCharacter(new CharacterC());
         }
         this.currentHP = maxHP;
         this.player = player;

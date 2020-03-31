@@ -125,8 +125,11 @@ public class CardContainer : MonoBehaviourPun {
                     GameManager.GetLocal().SetPromptText("");
                     GameManager.GetLocal().discardMode = false;
                     foreach(CardContainer card in GameManager.GetLocal().discardBucket){
+                        photonView.RPC("Use", GameManager.GetRemote().player, false);
+                        photonView.RPC("Use", GameManager.GetLocal().player, true);
                         PhotonNetwork.Destroy(card.gameObject);
                     }
+                    GameManager.GetLocal().discardBucket.Clear();
                     GameManager.GetLocal().discardCallback();
                 }
             }
