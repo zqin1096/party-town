@@ -19,6 +19,9 @@ public class Timer : MonoBehaviour {
             timeLeft -= Time.deltaTime;
             timeBar.fillAmount = timeLeft / maxTime;
         } else {
+            if (GameManager.GetLocal().discardMode == true){
+                return;
+            }
             if (GameManager.instance.currentPlayer == GameManager.GetLocal()) {
                 GameUI.instance.OnEndTurnButton();
                 ResetTimer();
@@ -30,6 +33,6 @@ public class Timer : MonoBehaviour {
     }
 
     public void ResetTimer() {
-        timeLeft = 10f;
+        timeLeft = 20f;
     }
 }

@@ -73,12 +73,15 @@ public class GameUI : MonoBehaviourPun {
 
     // Play button.
     public void OnPlayButton() {
+        // TODO: implement discard function
+
         Debug.Log("Play button clicked.");
         GameManager.instance.currentPlayer.getSelectedCard().DoEffect();
     }
 
     public void TogglePlayButton(bool toggle) {
-        Debug.Log("Toggle play button.");
+        // comment it because it is super annoying
+        // Debug.Log("Toggle play button.");
         playButton.interactable = toggle;
     }
 

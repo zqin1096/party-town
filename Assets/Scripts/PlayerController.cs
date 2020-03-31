@@ -15,22 +15,40 @@ public class PlayerController : MonoBehaviourPun {
     public Text remoteUsername;
     public Text localNumberOfCards;
     public Text remoteNumberOfCards;
+    // This should be used to give hints
+    public Text promtText;
 
     public Player player;
     public int numOfcards;
     public int numberOfAttack;
+    public Character character;
 
     private CardContainer selectedCard;
     private bool isWaitingResponse;
     private bool isGettingRequest;
-    public static int maxHP = 3;
+    public int maxHP = 3;
     private int currentHP;
     private string enemyCard;
     private string requestedCard;
 
+    public bool discardMode;
+    public int discardNum;
+    public String[] discardLabels;
+    public AfterDiscarding discardCallback;
+    public ArrayList discardBucket = new ArrayList();
+
     void Update() {
         localNumberOfCards.text = GameManager.GetLocal().numOfcards.ToString();
         remoteNumberOfCards.text = GameManager.GetRemote().numOfcards.ToString();
+    }
+
+    public void SetPromptText(String prompt){
+        this.promtText.text = prompt;
+    }
+
+    public void SetCharacter(Character character){
+        this.character = character;
+        this.maxHP = character.maxHP;
     }
 
     public string GetEnemyCard() {
@@ -83,11 +101,20 @@ public class PlayerController : MonoBehaviourPun {
             selectedCard = null;
         }
         this.numberOfAttack = 0;
-        GameManager.instance.photonView.RPC("SetNextTurn", RpcTarget.All);
+
+        // if the number of cards you have is more than you maxHP
+        if(this.numOfcards > this.maxHP){
+            AfterDiscarding callback = delegate(){
+                GameManager.instance.photonView.RPC("SetNextTurn", RpcTarget.All);
+            };
+            this.Discard(this.numOfcards - this.maxHP, null, callback);
+        }else{
+            GameManager.instance.photonView.RPC("SetNextTurn", RpcTarget.All);
+        }
     }
 
     public void StartTurn() {
-        InitializeCards(1);
+        InitializeCards(2);
     }
 
     [PunRPC]
@@ -97,7 +124,7 @@ public class PlayerController : MonoBehaviourPun {
         if (player.IsLocal) {
             this.username.text = player.NickName;
             this.remoteUsername.text = player.GetNext().NickName;
-            InitializeCards(3);
+            InitializeCards(4);
         } else {
         }
     }
@@ -161,7 +188,7 @@ public class PlayerController : MonoBehaviourPun {
         this.isWaitingResponse = false;
     }
 
-    void InitializeCards(int numOfCards) {
+    public void InitializeCards(int numOfCards) {
         for (int i = 0; i < numOfCards; i++) {
             GameObject card = PhotonNetwork.Instantiate(
                 "CardContainer",
@@ -191,5 +218,17 @@ public class PlayerController : MonoBehaviourPun {
         card.GetPhotonView().RPC("Initialize", RpcTarget.Others, false, label);
         card.GetPhotonView().RPC("Initialize", player, true, label);
         card.transform.SetParent(deck.transform, false);
+    }
+
+    public delegate void AfterDiscarding();
+
+    // Specify how many card the player should disacrd and the labels of them
+    public void Discard(int num, String[] label, AfterDiscarding callback){
+        this.SetPromptText("Please discard " + num + (num == 1?" card":" cards"));
+        this.discardMode = true;
+        this.discardLabels = label;
+        this.discardNum = num;
+        this.discardCallback = callback;
+        Debug.LogFormat("PlayerController.Discard(), Num: {0}", num);
     }
 }

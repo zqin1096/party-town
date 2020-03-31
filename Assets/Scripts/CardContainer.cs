@@ -10,6 +10,7 @@ public class CardContainer : MonoBehaviourPun {
     public Card card;
     public Image suitImage;
     public Text label;
+    private const int SelectedCardYOffset = 15;
 
     [PunRPC]
     void Initialize(bool isMine, string label) {
@@ -111,22 +112,43 @@ public class CardContainer : MonoBehaviourPun {
     }
 
     public void ToggleSelect() {
+
+        // Discard related code
+        if(GameManager.GetLocal().discardMode == true){
+            if (GameManager.GetLocal().discardBucket.Contains(this)){
+                GameManager.GetLocal().discardBucket.Remove(this);
+                transform.position = new Vector2(transform.position.x, transform.position.y - SelectedCardYOffset);
+            }else{
+                transform.position = new Vector2(transform.position.x, transform.position.y + SelectedCardYOffset);
+                GameManager.GetLocal().discardBucket.Add(this);
+                if(GameManager.GetLocal().discardBucket.Count == GameManager.GetLocal().discardNum){
+                    GameManager.GetLocal().SetPromptText("");
+                    GameManager.GetLocal().discardMode = false;
+                    foreach(CardContainer card in GameManager.GetLocal().discardBucket){
+                        PhotonNetwork.Destroy(card.gameObject);
+                    }
+                    GameManager.GetLocal().discardCallback();
+                }
+            }
+            return;
+        }
+
         Debug.Log("Toggle select card.");
         if (GameManager.GetLocal().getSelectedCard() == null) {
-            transform.position = new Vector2(transform.position.x, transform.position.y + 5);
+            transform.position = new Vector2(transform.position.x, transform.position.y + SelectedCardYOffset);
             GameManager.GetLocal().setSelectedCard(this);
             // GameUI.instance.TogglePlayButton(true);
         } else {
             if (GameManager.GetLocal().getSelectedCard() == this) {
-                transform.position = new Vector2(transform.position.x, transform.position.y - 5);
+                transform.position = new Vector2(transform.position.x, transform.position.y - SelectedCardYOffset);
                 GameManager.GetLocal().setSelectedCard(null);
                 // GameUI.instance.TogglePlayButton(false);
             } else {
                 GameManager.GetLocal().getSelectedCard().transform.position =
                     new Vector2(GameManager.GetLocal().getSelectedCard().transform.position.x,
-                               GameManager.GetLocal().getSelectedCard().transform.position.y - 5);
+                               GameManager.GetLocal().getSelectedCard().transform.position.y - SelectedCardYOffset);
 
-                transform.position = new Vector2(transform.position.x, transform.position.y + 5);
+                transform.position = new Vector2(transform.position.x, transform.position.y + SelectedCardYOffset);
                 GameManager.GetLocal().setSelectedCard(this);
             }
         }

@@ -15,7 +15,12 @@ public class HealCard : Card {
         if (GameManager.isGameEnded) {
             return false;
         }
-        if (GameManager.GetLocal() == GameManager.instance.currentPlayer && GameManager.GetLocal().GetCurrentHP() < PlayerController.maxHP && !GameManager.GetLocal().GetIsWaitingResponse()) {
+        // This is used in discard mode
+        if (GameManager.GetLocal().discardMode == true && GameManager.GetLocal() == GameManager.instance.currentPlayer &&
+                (GameManager.GetLocal().discardLabels == null || Array.IndexOf(GameManager.GetLocal().discardLabels, this.label) > -1)){
+            return true;
+        }
+        if (GameManager.GetLocal() == GameManager.instance.currentPlayer && GameManager.GetLocal().GetCurrentHP() < GameManager.GetLocal().maxHP && !GameManager.GetLocal().GetIsWaitingResponse()) {
             return true;
         }
         return false;
