@@ -5,5 +5,5 @@ using UnityEngine;
 // This charcter has two extra HP
 public class CharacterA : Character
 {
-    public new int maxHP = 4;
+    public new int maxHP = 5;
 }

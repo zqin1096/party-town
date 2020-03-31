@@ -97,7 +97,7 @@ public class PlayerController : MonoBehaviourPun {
 
     public void EndTurn() {
         if (selectedCard != null) {
-            selectedCard.transform.position = new Vector2(selectedCard.transform.position.x, selectedCard.transform.position.y - 5);
+            selectedCard.transform.position = new Vector2(selectedCard.transform.position.x, selectedCard.transform.position.y - CardContainer.SelectedCardYOffset);
             selectedCard = null;
         }
         this.numberOfAttack = 0;
@@ -114,11 +114,20 @@ public class PlayerController : MonoBehaviourPun {
     }
 
     public void StartTurn() {
-        InitializeCards(2);
+        if(this.character.hasDrawingStageSkill){
+            this.character.DrawingStageSkill();
+        }else{
+            InitializeCards(2);
+        }
     }
 
     [PunRPC]
     void Initialize(Player player) {
+        if(GameManager.GetLocalActorNumber() == 1){
+            this.SetCharacter(new CharacterA());
+        }else{
+            this.SetCharacter(new CharacterB());
+        }
         this.currentHP = maxHP;
         this.player = player;
         if (player.IsLocal) {

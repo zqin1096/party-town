@@ -10,7 +10,7 @@ public class CardContainer : MonoBehaviourPun {
     public Card card;
     public Image suitImage;
     public Text label;
-    private const int SelectedCardYOffset = 15;
+    public static readonly int SelectedCardYOffset = 15;
 
     [PunRPC]
     void Initialize(bool isMine, string label) {

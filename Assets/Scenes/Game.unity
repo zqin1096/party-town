@@ -2830,7 +2830,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Hint: What to use next?'
+  m_Text: 
 --- !u!222 &1971472186
 CanvasRenderer:
   m_ObjectHideFlags: 0
