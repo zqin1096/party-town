@@ -6,13 +6,11 @@ using UnityEngine;
  * Draw one more card at the begining
  * 
  * */
-public class CharacterC : Character
-{
-    public override string name {get{return "Character C";}}
-    public override bool hasDrawingStageSkill {get{return true;}}
+public class CharacterC : Character {
+    public override string name { get { return "Character C"; } }
+    public override bool hasDrawingStageSkill { get { return true; } }
 
-    public override void DrawingStageSkill()
-    {
+    public override void DrawingStageSkill() {
         GameManager.GetLocal().InitializeCards(3);
     }
 }

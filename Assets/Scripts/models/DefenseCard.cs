@@ -7,8 +7,11 @@ public class DefenseCard : Card {
 
     public DefenseCard() : base() {
         this.no = "2";
+        this.number = Card.generateNumber();
         this.label = "Defense";
-        this.desc = "This voids an attack card";
+        this.desc = "Avoid the effect of Attack";
+        this.type = "Basic Card";
+        this.cardSprite = Resources.Load<Sprite>("Guard");
         this.effectType = EffectType.Self;
     }
 
@@ -23,7 +26,7 @@ public class DefenseCard : Card {
         }
         // This is used in discard mode
         if (GameManager.GetLocal().discardMode == true && GameManager.GetLocal() == GameManager.instance.currentPlayer &&
-                (GameManager.GetLocal().discardLabels == null || Array.IndexOf(GameManager.GetLocal().discardLabels, this.label) > -1)){
+                (GameManager.GetLocal().discardLabels == null || Array.IndexOf(GameManager.GetLocal().discardLabels, this.label) > -1)) {
             return true;
         }
         // A Defense card can be selected when the local player receives a request of the Defense card.

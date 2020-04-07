@@ -6,8 +6,11 @@ using UnityEngine;
 public class SpecialAttack : Card {
     public SpecialAttack() : base() {
         this.no = "4";
+        this.number = Card.generateNumber();
         this.label = "Special Attack";
         this.desc = "This attacks your enemy hard";
+        this.type = "Utility Card";
+        this.cardSprite = Resources.Load<Sprite>("Cloud");
         this.effectType = EffectType.Enemy;
     }
 
@@ -17,8 +20,7 @@ public class SpecialAttack : Card {
         }
         // This is used in discard mode
         if (GameManager.GetLocal().discardMode == true && GameManager.GetLocal() == GameManager.instance.currentPlayer &&
-                (GameManager.GetLocal().discardLabels == null || Array.IndexOf(GameManager.GetLocal().discardLabels, this.label) > -1))
-        {
+                (GameManager.GetLocal().discardLabels == null || Array.IndexOf(GameManager.GetLocal().discardLabels, this.label) > -1)) {
             return true;
         }
         // An Attack card can be selected when the local player has the turn and is not waiting for response.

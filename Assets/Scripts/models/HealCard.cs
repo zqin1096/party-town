@@ -6,8 +6,11 @@ using UnityEngine;
 public class HealCard : Card {
     public HealCard() : base() {
         this.no = "1";
+        this.number = Card.generateNumber();
         this.label = "Heal";
         this.desc = "This heals yourself";
+        this.type = "Basic Card";
+        this.cardSprite = Resources.Load<Sprite>("Health");
         this.effectType = EffectType.Self;
     }
 
@@ -17,7 +20,7 @@ public class HealCard : Card {
         }
         // This is used in discard mode
         if (GameManager.GetLocal().discardMode == true && GameManager.GetLocal() == GameManager.instance.currentPlayer &&
-                (GameManager.GetLocal().discardLabels == null || Array.IndexOf(GameManager.GetLocal().discardLabels, this.label) > -1)){
+                (GameManager.GetLocal().discardLabels == null || Array.IndexOf(GameManager.GetLocal().discardLabels, this.label) > -1)) {
             return true;
         }
         if (GameManager.GetLocal() == GameManager.instance.currentPlayer && GameManager.GetLocal().GetCurrentHP() < GameManager.GetLocal().maxHP && !GameManager.GetLocal().GetIsWaitingResponse()) {

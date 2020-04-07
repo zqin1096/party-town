@@ -19,7 +19,7 @@ public class Timer : MonoBehaviour {
             timeLeft -= Time.deltaTime;
             timeBar.fillAmount = timeLeft / maxTime;
         } else {
-            if (GameManager.GetLocal().discardMode == true){
+            if (GameManager.GetLocal().discardMode == true) {
                 return;
             }
             if (GameManager.instance.currentPlayer == GameManager.GetLocal()) {

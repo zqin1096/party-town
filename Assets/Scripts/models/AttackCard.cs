@@ -6,8 +6,11 @@ using UnityEngine;
 public class AttackCard : Card {
     public AttackCard() : base() {
         this.no = "0";
+        this.number = Card.generateNumber();
         this.label = "Attack";
-        this.desc = "This attacks your enemy";
+        this.desc = "Attack your opponent. Only one Attack card can be used in each turn";
+        this.type = "Basic Card";
+        this.cardSprite = Resources.Load<Sprite>("Attack");
         this.effectType = EffectType.Enemy;
     }
 
@@ -17,7 +20,7 @@ public class AttackCard : Card {
         }
         // This is used in discard mode
         if (GameManager.GetLocal().discardMode == true && GameManager.GetLocal() == GameManager.instance.currentPlayer &&
-                (GameManager.GetLocal().discardLabels == null || Array.IndexOf(GameManager.GetLocal().discardLabels, this.label) > -1)){
+                (GameManager.GetLocal().discardLabels == null || Array.IndexOf(GameManager.GetLocal().discardLabels, this.label) > -1)) {
             return true;
         }
         // An Attack card can be selected when the local player has the turn and is not waiting for response.

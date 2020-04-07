@@ -8,8 +8,12 @@ using UnityEngine.EventSystems;
 
 public class CardContainer : MonoBehaviourPun {
     public Card card;
-    public Image suitImage;
+    // public Image suitImage;
+    public Text number;
     public Text label;
+    public Text description;
+    public Text typeText;
+    public Image cardImage;
     public static readonly int SelectedCardYOffset = 15;
 
     [PunRPC]
@@ -17,6 +21,11 @@ public class CardContainer : MonoBehaviourPun {
         if (label == null) {
             this.card = CreateRandomCard();
             this.label.text = this.card.label;
+            this.number.text = this.card.number;
+            Debug.Log(this.card.number);
+            this.description.text = this.card.desc;
+            this.typeText.text = this.card.type;
+            this.cardImage.sprite = this.card.cardSprite;
         } else {
             switch (label) {
                 case "Attack":
@@ -38,6 +47,10 @@ public class CardContainer : MonoBehaviourPun {
                     break;
             }
             this.label.text = this.card.label;
+            this.number.text = this.card.number;
+            this.description.text = this.card.desc;
+            this.typeText.text = this.card.type;
+            this.cardImage.sprite = this.card.cardSprite;
         }
         if (isMine) {
             GameManager.GetLocal().numOfcards++;
@@ -114,17 +127,17 @@ public class CardContainer : MonoBehaviourPun {
     public void ToggleSelect() {
 
         // Discard related code
-        if(GameManager.GetLocal().discardMode == true){
-            if (GameManager.GetLocal().discardBucket.Contains(this)){
+        if (GameManager.GetLocal().discardMode == true) {
+            if (GameManager.GetLocal().discardBucket.Contains(this)) {
                 GameManager.GetLocal().discardBucket.Remove(this);
                 transform.position = new Vector2(transform.position.x, transform.position.y - SelectedCardYOffset);
-            }else{
+            } else {
                 transform.position = new Vector2(transform.position.x, transform.position.y + SelectedCardYOffset);
                 GameManager.GetLocal().discardBucket.Add(this);
-                if(GameManager.GetLocal().discardBucket.Count == GameManager.GetLocal().discardNum){
+                if (GameManager.GetLocal().discardBucket.Count == GameManager.GetLocal().discardNum) {
                     GameManager.GetLocal().SetPromptText("");
                     GameManager.GetLocal().discardMode = false;
-                    foreach(CardContainer card in GameManager.GetLocal().discardBucket){
+                    foreach (CardContainer card in GameManager.GetLocal().discardBucket) {
                         photonView.RPC("Use", GameManager.GetRemote().player, false);
                         photonView.RPC("Use", GameManager.GetLocal().player, true);
                         PhotonNetwork.Destroy(card.gameObject);

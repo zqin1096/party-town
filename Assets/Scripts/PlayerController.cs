@@ -43,12 +43,12 @@ public class PlayerController : MonoBehaviourPun {
         remoteNumberOfCards.text = GameManager.GetRemote().numOfcards.ToString();
     }
 
-    public void SetPromptText(String prompt){
+    public void SetPromptText(String prompt) {
         this.promtText.text = prompt;
     }
 
-    public void SetCharacter(Character character){
-        Debug.Log("Player's character is set to " + character.name + "; Player name: "+ this.username.text);
+    public void SetCharacter(Character character) {
+        Debug.Log("Player's character is set to " + character.name + "; Player name: " + this.username.text);
         this.character = character;
         this.maxHP = character.maxHP;
         this.CharacterName.text = character.name;
@@ -106,30 +106,30 @@ public class PlayerController : MonoBehaviourPun {
         this.numberOfAttack = 0;
 
         // if the number of cards you have is more than you maxHP
-        if(this.numOfcards > this.maxHP){
-            AfterDiscarding callback = delegate(){
+        if (this.numOfcards > this.maxHP) {
+            AfterDiscarding callback = delegate () {
                 GameManager.instance.photonView.RPC("SetNextTurn", RpcTarget.All);
             };
             this.Discard(this.numOfcards - this.maxHP, null, callback);
-        }else{
+        } else {
             GameManager.instance.photonView.RPC("SetNextTurn", RpcTarget.All);
         }
     }
 
     public void StartTurn() {
-        if(this.character.hasDrawingStageSkill){
+        if (this.character.hasDrawingStageSkill) {
             Debug.LogFormat("Character should be using skills now");
             this.character.DrawingStageSkill();
-        }else{
+        } else {
             InitializeCards(2);
         }
     }
 
     [PunRPC]
     void Initialize(Player player) {
-        if(GameManager.GetLocalActorNumber() == 1 && player.IsLocal){
+        if (GameManager.GetLocalActorNumber() == 1 && player.IsLocal) {
             this.SetCharacter(new CharacterB());
-        }else if(GameManager.GetLocalActorNumber() == 2 && player.IsLocal){
+        } else if (GameManager.GetLocalActorNumber() == 2 && player.IsLocal) {
             this.SetCharacter(new CharacterC());
         }
         this.currentHP = maxHP;
@@ -204,7 +204,7 @@ public class PlayerController : MonoBehaviourPun {
     public void InitializeCards(int numOfCards) {
         for (int i = 0; i < numOfCards; i++) {
             GameObject card = PhotonNetwork.Instantiate(
-                "CardContainer",
+                "CardDisplay",
                 new Vector3(0, 0, 0),
                 Quaternion.identity
             );
@@ -227,7 +227,7 @@ public class PlayerController : MonoBehaviourPun {
 
     [PunRPC]
     public void GetCard(string label) {
-        GameObject card = PhotonNetwork.Instantiate("CardContainer", new Vector3(0, 0, 0), Quaternion.identity);
+        GameObject card = PhotonNetwork.Instantiate("CardDisplay", new Vector3(0, 0, 0), Quaternion.identity);
         card.GetPhotonView().RPC("Initialize", RpcTarget.Others, false, label);
         card.GetPhotonView().RPC("Initialize", player, true, label);
         card.transform.SetParent(deck.transform, false);
@@ -236,8 +236,8 @@ public class PlayerController : MonoBehaviourPun {
     public delegate void AfterDiscarding();
 
     // Specify how many card the player should disacrd and the labels of them
-    public void Discard(int num, String[] label, AfterDiscarding callback){
-        this.SetPromptText("Please discard " + num + (num == 1?" card":" cards"));
+    public void Discard(int num, String[] label, AfterDiscarding callback) {
+        this.SetPromptText("Please discard " + num + (num == 1 ? " card" : " cards"));
         this.discardMode = true;
         this.discardLabels = label;
         this.discardNum = num;
