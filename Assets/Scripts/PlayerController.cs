@@ -121,15 +121,15 @@ public class PlayerController : MonoBehaviourPun {
             Debug.LogFormat("Character should be using skills now");
             this.character.DrawingStageSkill();
         } else {
-            InitializeCards(2);
+            InitializeCards(1);
         }
     }
 
     [PunRPC]
     void Initialize(Player player) {
-        if (GameManager.GetLocalActorNumber() == 1 && player.IsLocal) {
+        if (player.IsMasterClient && player.IsLocal) {
             this.SetCharacter(new CharacterB());
-        } else if (GameManager.GetLocalActorNumber() == 2 && player.IsLocal) {
+        } else if (!player.IsMasterClient && player.IsLocal) {
             this.SetCharacter(new CharacterC());
         }
         this.currentHP = maxHP;
