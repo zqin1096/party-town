@@ -49,14 +49,20 @@ public class NetworkManager : MonoBehaviourPunCallbacks {
         PhotonNetwork.JoinRoom(roomName);
     }
 
+    public void CreateOrJoinRoom() {
+        if (PhotonNetwork.CountOfRooms > 0) {
+            PhotonNetwork.JoinRandomRoom();
+        } else {
+            RoomOptions options = new RoomOptions();
+            options.MaxPlayers = 2;
+            PhotonNetwork.CreateRoom(null, options);
+        }
+    }
+
     // This function will be used as an RPC. When the host starts the game, everyone in the
     // room will call this function.
     [PunRPC]
     public void CreateScene(string sceneName) {
-        Debug.LogFormat("NetworkManager.CreateScene(): roomName: {0}, sceneName: {1}",
-            PhotonNetwork.CurrentRoom.Name,
-            sceneName
-        );
         PhotonNetwork.LoadLevel(sceneName);
     }
 }

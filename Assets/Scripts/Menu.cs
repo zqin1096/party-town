@@ -12,8 +12,7 @@ public class Menu : MonoBehaviourPunCallbacks {
     public GameObject lobbyScreen;
 
     [Header("Main Screen")]
-    public Button createRoomButton;
-    public Button joinRoomButton;
+    public Button findMatchButton;
 
     [Header("Lobby Screen")]
     public TextMeshProUGUI playerListText;
@@ -21,17 +20,14 @@ public class Menu : MonoBehaviourPunCallbacks {
     public TextMeshProUGUI gameStartingText;
 
     void Start() {
-        Debug.LogFormat("Menu.Start()");
         // Disable the button when the player is not connected to the server.
-        createRoomButton.interactable = false;
-        joinRoomButton.interactable = false;
+        findMatchButton.interactable = false;
         gameStartingText.gameObject.SetActive(false);
     }
 
     public override void OnConnectedToMaster() {
         // Re-enable the buttons.
-        createRoomButton.interactable = true;
-        joinRoomButton.interactable = true;
+        findMatchButton.interactable = true;
     }
 
     void SetScreen(GameObject screen) {
@@ -41,34 +37,24 @@ public class Menu : MonoBehaviourPunCallbacks {
     }
 
     public void OnCreateRoomButton(TMP_InputField roomNameInput) {
-        Debug.LogFormat(
-            "Menu.OnCreateRoomButton(): roomName: {0}, nickName: {1}",
-            roomNameInput.text,
-            PhotonNetwork.NickName
-        );
-
         if (roomNameInput.text.Length > 0) {
             NetworkManager.instance.CreateRoom(roomNameInput.text);
         }
     }
 
     public void OnJoinRoomButton(TMP_InputField roomNameInput) {
-        Debug.LogFormat(
-            "Menu.OnJoinRoomButton(): roomName: {0}, nickName: {1}",
-            roomNameInput.text,
-            PhotonNetwork.NickName
-        );
-
         NetworkManager.instance.JoinRoom(roomNameInput.text);
     }
 
-    public void OnPlayerNameUpdate(TMP_InputField playerNameInput) {
+    public void OnFindMatchButton() {
+        NetworkManager.instance.CreateOrJoinRoom();
+    }
+
+    public void OnPlayerNameUpdate(InputField playerNameInput) {
         PhotonNetwork.NickName = playerNameInput.text;
     }
 
     public override void OnJoinedRoom() {
-        Debug.LogFormat("Menu.OnJoinedRoom()");
-
         SetScreen(lobbyScreen);
         photonView.RPC("UpdateLobbyUI", RpcTarget.All);
     }
@@ -98,21 +84,22 @@ public class Menu : MonoBehaviourPunCallbacks {
     }
 
     public void OnStartGameButton() {
-        Debug.LogFormat(
-            "Menu.OnStartGameButton(): playerCount: {0}",
-            PhotonNetwork.CurrentRoom.PlayerCount
-        );
         if (PhotonNetwork.CurrentRoom.PlayerCount > 1) {
-            gameStartingText.gameObject.SetActive(true);
+            photonView.RPC("ActivateGameStartingText", RpcTarget.All, true);
             Invoke("TryStartGame", 3.0f);
         }
+    }
+
+    [PunRPC]
+    public void ActivateGameStartingText(bool isActive) {
+        gameStartingText.gameObject.SetActive(isActive);
     }
 
     void TryStartGame() {
         if (PhotonNetwork.CurrentRoom.PlayerCount > 1) {
             NetworkManager.instance.photonView.RPC("CreateScene", RpcTarget.All, "Game");
         } else {
-            gameStartingText.gameObject.SetActive(false);
+            photonView.RPC("ActivateGameStartingText", RpcTarget.All, false);
         }
     }
 }

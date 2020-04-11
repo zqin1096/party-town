@@ -49,5 +49,6 @@ MonoBehaviour:
   - RmoveCard
   - GetCard
   - SetMessageBox
+  - ActivateGameStartingText
   DisableAutoOpenWizard: 1
   ShowSettings: 0
