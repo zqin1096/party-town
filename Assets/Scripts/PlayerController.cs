@@ -44,10 +44,10 @@ public class PlayerController : MonoBehaviourPun {
         localNumberOfCards.text = GameManager.GetLocal().numOfcards.ToString();
         if (this.remoteNumberOfCards.text != GameManager.GetRemote().numOfcards.ToString()) {
             foreach (Transform child in enemy.transform) {
-            GameObject.Destroy(child.gameObject);
+                GameObject.Destroy(child.gameObject);
             }
 
-            for (int i = 0; i < GameManager.GetRemote().numOfcards; i +=1 ) {
+            for (int i = 0; i < GameManager.GetRemote().numOfcards; i += 1) {
                 GameObject card = PhotonNetwork.Instantiate(
                     "CardDisplay",
                     new Vector3(0, 0, 0),
@@ -180,6 +180,7 @@ public class PlayerController : MonoBehaviourPun {
             switch (this.enemyCard) {
                 case "Attack":
                     this.currentHP--;
+                    SoundManager.PlaySound("pain");
                     GameManager.GetLocal().photonView.RPC("UpdateHealth", RpcTarget.Others, currentHP, false);
                     GameManager.GetLocal().photonView.RPC("UpdateHealth", player, currentHP, true);
                     GameManager.instance.CheckWinCondition();
