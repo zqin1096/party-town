@@ -239,6 +239,7 @@ public class PlayerController : MonoBehaviourPun {
         child.GetComponent<CardContainer>().photonView.RPC("Use", GameManager.GetRemote().player, false);
         child.GetComponent<CardContainer>().photonView.RPC("Use", GameManager.GetLocal().player, true);
         PhotonNetwork.Destroy(child.gameObject);
+        SoundManager.PlaySound("cardTaken");
         GameManager.GetRemote().photonView.RPC("GetCard", GameManager.GetRemote().player, label);
     }
 
@@ -247,6 +248,7 @@ public class PlayerController : MonoBehaviourPun {
         GameObject card = PhotonNetwork.Instantiate("CardDisplay", new Vector3(0, 0, 0), Quaternion.identity);
         card.GetPhotonView().RPC("Initialize", RpcTarget.Others, false, label);
         card.GetPhotonView().RPC("Initialize", player, true, label);
+        SoundManager.PlaySound("cardTaken");
         card.transform.SetParent(deck.transform, false);
     }
 
