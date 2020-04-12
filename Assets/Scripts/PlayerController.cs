@@ -8,6 +8,8 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviourPun {
     public GameObject deck;
+    public GameObject enemy;
+
     public Text localHP;
     public Text remoteHP;
     public Text messageBox;
@@ -40,7 +42,21 @@ public class PlayerController : MonoBehaviourPun {
 
     void Update() {
         localNumberOfCards.text = GameManager.GetLocal().numOfcards.ToString();
-        remoteNumberOfCards.text = GameManager.GetRemote().numOfcards.ToString();
+        if (this.remoteNumberOfCards.text != GameManager.GetRemote().numOfcards.ToString()) {
+            foreach (Transform child in enemy.transform) {
+            GameObject.Destroy(child.gameObject);
+            }
+
+            for (int i = 0; i < GameManager.GetRemote().numOfcards; i +=1 ) {
+                GameObject card = PhotonNetwork.Instantiate(
+                    "CardDisplay",
+                    new Vector3(0, 0, 0),
+                    Quaternion.identity
+                );
+                card.transform.SetParent(enemy.transform, false);
+            }
+            remoteNumberOfCards.text = GameManager.GetRemote().numOfcards.ToString();
+        }
     }
 
     public void SetPromptText(String prompt) {
