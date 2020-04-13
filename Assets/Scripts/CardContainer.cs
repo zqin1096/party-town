@@ -69,7 +69,7 @@ public class CardContainer : MonoBehaviourPun {
     }
 
     public Card CreateRandomCard() {
-        int randomValue = UnityEngine.Random.Range(0, 100);
+        int randomValue = UnityEngine.Random.Range(0, 110);
         string cardNo = "";
         if (0 <= randomValue && randomValue < 42) {
             cardNo = "0";
@@ -81,6 +81,8 @@ public class CardContainer : MonoBehaviourPun {
             cardNo = "3";
         } else if (90 <= randomValue && randomValue < 100) {
             cardNo = "4";
+        } else if (100 <= randomValue && randomValue < 110) {
+            cardNo = "5";
         }
         return CardMap.GetCardInstance(cardNo);
     }

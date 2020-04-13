@@ -18,6 +18,8 @@ public class CardMap {
                 return new TakeCard();
             case "4":
                 return new SpecialAttack();
+            case "5":
+                return new BillizardCard();
             default:
                 throw new System.InvalidOperationException("CardMap.GetCardInstance(): cardNo wrong");
         }

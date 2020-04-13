@@ -22,7 +22,7 @@ public class TakeCard : Card {
                 (GameManager.GetLocal().discardLabels == null || Array.IndexOf(GameManager.GetLocal().discardLabels, this.label) > -1)) {
             return true;
         }
-        if (GameManager.GetLocal() == GameManager.instance.currentPlayer && !GameManager.GetLocal().GetIsWaitingResponse() && GameManager.GetRemote().numOfcards != 0) {
+        if (GameManager.GetLocal() == GameManager.instance.currentPlayer && !GameManager.GetLocal().GetIsWaitingResponse() && GameManager.GetRemote().numOfcards != 0  && !GameManager.GetLocal().isFrozen) {
             return true;
         }
         return false;

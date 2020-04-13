@@ -38,6 +38,8 @@ public class PlayerController : MonoBehaviourPun {
     public AfterDiscarding discardCallback;
     public ArrayList discardBucket = new ArrayList();
 
+    public bool isFrozen = false;
+
     void Update() {
         localNumberOfCards.text = GameManager.GetLocal().numOfcards.ToString();
         remoteNumberOfCards.text = GameManager.GetRemote().numOfcards.ToString();
@@ -99,6 +101,8 @@ public class PlayerController : MonoBehaviourPun {
     }
 
     public void EndTurn() {
+        if(this.isFrozen)
+            this.DefrozePlayer();
         if (selectedCard != null) {
             selectedCard.transform.position = new Vector2(selectedCard.transform.position.x, selectedCard.transform.position.y - CardContainer.SelectedCardYOffset);
             selectedCard = null;
@@ -123,6 +127,11 @@ public class PlayerController : MonoBehaviourPun {
         } else {
             InitializeCards(2);
         }
+        if (this.isFrozen) {
+            this.SetPromptText("You are frozen!");
+            Invoke("EndTurn", 2);
+        }
+
     }
 
     [PunRPC]
@@ -199,6 +208,15 @@ public class PlayerController : MonoBehaviourPun {
     [PunRPC]
     public void GetResponse() {
         this.isWaitingResponse = false;
+    }
+
+    [PunRPC]
+    public void FrozePlayer() {
+        this.isFrozen = true;
+    }
+
+    public void DefrozePlayer() {
+        this.isFrozen = false;
     }
 
     public void InitializeCards(int numOfCards) {

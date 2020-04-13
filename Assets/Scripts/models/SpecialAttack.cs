@@ -24,7 +24,7 @@ public class SpecialAttack : Card {
             return true;
         }
         // An Attack card can be selected when the local player has the turn and is not waiting for response.
-        if (GameManager.GetLocal() == GameManager.instance.currentPlayer && !GameManager.GetLocal().GetIsWaitingResponse() && GameManager.GetLocal().numberOfAttack < 1) {
+        if (GameManager.GetLocal() == GameManager.instance.currentPlayer && !GameManager.GetLocal().GetIsWaitingResponse() && GameManager.GetLocal().numberOfAttack < 1 && !GameManager.GetLocal().isFrozen) {
             return true;
         }
         return false;

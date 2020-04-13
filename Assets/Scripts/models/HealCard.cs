@@ -23,7 +23,7 @@ public class HealCard : Card {
                 (GameManager.GetLocal().discardLabels == null || Array.IndexOf(GameManager.GetLocal().discardLabels, this.label) > -1)) {
             return true;
         }
-        if (GameManager.GetLocal() == GameManager.instance.currentPlayer && GameManager.GetLocal().GetCurrentHP() < GameManager.GetLocal().maxHP && !GameManager.GetLocal().GetIsWaitingResponse()) {
+        if (GameManager.GetLocal() == GameManager.instance.currentPlayer && GameManager.GetLocal().GetCurrentHP() < GameManager.GetLocal().maxHP && !GameManager.GetLocal().GetIsWaitingResponse() && !GameManager.GetLocal().isFrozen) {
             return true;
         }
         return false;
