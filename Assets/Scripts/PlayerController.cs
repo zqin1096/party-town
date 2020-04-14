@@ -53,6 +53,8 @@ public class PlayerController : MonoBehaviourPun {
                     new Vector3(0, 0, 0),
                     Quaternion.identity
                 );
+                card.transform.Find("CardFront").gameObject.SetActive(false);
+                card.transform.Find("CardBack").gameObject.SetActive(true);
                 card.transform.SetParent(enemy.transform, false);
             }
             remoteNumberOfCards.text = GameManager.GetRemote().numOfcards.ToString();
@@ -188,6 +190,7 @@ public class PlayerController : MonoBehaviourPun {
                 case "Special Attack":
                     int damage = UnityEngine.Random.Range(1, 3);
                     this.currentHP -= damage;
+                    SoundManager.PlaySound("pain");
                     if (currentHP < 0) {
                         currentHP = 0;
                     }
