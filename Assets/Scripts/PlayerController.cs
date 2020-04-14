@@ -8,6 +8,8 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviourPun {
     public GameObject deck;
+    public GameObject enemy;
+
     public Text localHP;
     public Text remoteHP;
     public Text messageBox;
@@ -42,7 +44,23 @@ public class PlayerController : MonoBehaviourPun {
 
     void Update() {
         localNumberOfCards.text = GameManager.GetLocal().numOfcards.ToString();
-        remoteNumberOfCards.text = GameManager.GetRemote().numOfcards.ToString();
+        if (this.remoteNumberOfCards.text != GameManager.GetRemote().numOfcards.ToString()) {
+            foreach (Transform child in enemy.transform) {
+                GameObject.Destroy(child.gameObject);
+            }
+
+            for (int i = 0; i < GameManager.GetRemote().numOfcards; i += 1) {
+                GameObject card = PhotonNetwork.Instantiate(
+                    "CardDisplay",
+                    new Vector3(0, 0, 0),
+                    Quaternion.identity
+                );
+                card.transform.Find("CardFront").gameObject.SetActive(false);
+                card.transform.Find("CardBack").gameObject.SetActive(true);
+                card.transform.SetParent(enemy.transform, false);
+            }
+            remoteNumberOfCards.text = GameManager.GetRemote().numOfcards.ToString();
+        }
     }
 
     public void SetPromptText(String prompt) {
@@ -125,7 +143,7 @@ public class PlayerController : MonoBehaviourPun {
             Debug.LogFormat("Character should be using skills now");
             this.character.DrawingStageSkill();
         } else {
-            InitializeCards(2);
+            InitializeCards(1);
         }
         if (this.isFrozen) {
             this.SetPromptText("You are frozen!");
@@ -136,9 +154,9 @@ public class PlayerController : MonoBehaviourPun {
 
     [PunRPC]
     void Initialize(Player player) {
-        if (GameManager.GetLocalActorNumber() == 1 && player.IsLocal) {
+        if (player.IsMasterClient && player.IsLocal) {
             this.SetCharacter(new CharacterB());
-        } else if (GameManager.GetLocalActorNumber() == 2 && player.IsLocal) {
+        } else if (!player.IsMasterClient && player.IsLocal) {
             this.SetCharacter(new CharacterC());
         }
         this.currentHP = maxHP;
@@ -173,6 +191,7 @@ public class PlayerController : MonoBehaviourPun {
             switch (this.enemyCard) {
                 case "Attack":
                     this.currentHP--;
+                    SoundManager.PlaySound("pain");
                     GameManager.GetLocal().photonView.RPC("UpdateHealth", RpcTarget.Others, currentHP, false);
                     GameManager.GetLocal().photonView.RPC("UpdateHealth", player, currentHP, true);
                     GameManager.instance.CheckWinCondition();
@@ -180,6 +199,7 @@ public class PlayerController : MonoBehaviourPun {
                 case "Special Attack":
                     int damage = UnityEngine.Random.Range(1, 3);
                     this.currentHP -= damage;
+                    SoundManager.PlaySound("pain");
                     if (currentHP < 0) {
                         currentHP = 0;
                     }
@@ -240,6 +260,7 @@ public class PlayerController : MonoBehaviourPun {
         child.GetComponent<CardContainer>().photonView.RPC("Use", GameManager.GetRemote().player, false);
         child.GetComponent<CardContainer>().photonView.RPC("Use", GameManager.GetLocal().player, true);
         PhotonNetwork.Destroy(child.gameObject);
+        SoundManager.PlaySound("cardTaken");
         GameManager.GetRemote().photonView.RPC("GetCard", GameManager.GetRemote().player, label);
     }
 
@@ -248,6 +269,7 @@ public class PlayerController : MonoBehaviourPun {
         GameObject card = PhotonNetwork.Instantiate("CardDisplay", new Vector3(0, 0, 0), Quaternion.identity);
         card.GetPhotonView().RPC("Initialize", RpcTarget.Others, false, label);
         card.GetPhotonView().RPC("Initialize", player, true, label);
+        SoundManager.PlaySound("cardTaken");
         card.transform.SetParent(deck.transform, false);
     }
 

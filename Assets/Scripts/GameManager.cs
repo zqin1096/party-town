@@ -8,7 +8,7 @@ using Photon.Realtime;
 public class GameManager : MonoBehaviourPun {
     public PlayerController player1;
     public PlayerController player2;
-    public PlayerController[] players;
+    // public PlayerController[] players;
 
     public static GameManager instance;
 
@@ -28,35 +28,32 @@ public class GameManager : MonoBehaviourPun {
         }
     }
 
-    public static int GetLocalActorNumber() {
-        return PhotonNetwork.LocalPlayer.ActorNumber;
-    }
+    //public static int GetLocalActorNumber() {
+    //    return PhotonNetwork.LocalPlayer.ActorNumber;
+    //}
 
-    public static int GetRemoteActorNumber() {
-        return 3 - PhotonNetwork.LocalPlayer.ActorNumber;
-    }
+    //public static int GetRemoteActorNumber() {
+    //    return 3 - PhotonNetwork.LocalPlayer.ActorNumber;
+    //}
 
     public static PlayerController GetLocal() {
-        return GameManager.instance.players[GameManager.GetLocalActorNumber() - 1];
+        return GameManager.instance.player1.player.IsLocal ? GameManager.instance.player1 : GameManager.instance.player2;
     }
 
     public static PlayerController GetRemote() {
-        return GameManager.instance.players[GameManager.GetRemoteActorNumber() - 1];
+        return GameManager.instance.player1.player.IsLocal ? GameManager.instance.player2 : GameManager.instance.player1;
     }
 
-    public static PlayerController GetPlayer(int actorNumber) {
-        return GameManager.instance.players[actorNumber - 1];
-    }
+    //public static PlayerController GetPlayer(int actorNumber) {
+    //    return GameManager.instance.players[actorNumber - 1];
+    //}
 
     void Awake() {
         instance = this;
     }
 
     void Start() {
-        this.players = new PlayerController[2]{
-            this.player1,
-            this.player2
-        };
+        // this.players = new PlayerController[2] { this.player1, this.player2 };
 
         Debug.LogFormat("GameManager.Start(), IsMaterClient: {0}", PhotonNetwork.IsMasterClient);
         if (PhotonNetwork.IsMasterClient) {
@@ -66,14 +63,20 @@ public class GameManager : MonoBehaviourPun {
     }
 
     void InitializePlayers() {
-        player1.photonView.RPC("Initialize", RpcTarget.AllBuffered, PhotonNetwork.CurrentRoom.GetPlayer(1));
-        player2.photonView.RPC("Initialize", RpcTarget.AllBuffered, PhotonNetwork.CurrentRoom.GetPlayer(2));
+        Player[] players = PhotonNetwork.PlayerList;
+        foreach (Player player in PhotonNetwork.PlayerList) {
+            Debug.Log(player.NickName + " " + player.ActorNumber);
+        }
+        player1.photonView.RPC("Initialize", RpcTarget.AllBuffered, players[0].IsMasterClient ? players[0] : players[1]);
+        player2.photonView.RPC("Initialize", RpcTarget.AllBuffered, players[0].IsMasterClient ? players[1] : players[0]);
         photonView.RPC("SetNextTurn", RpcTarget.AllBuffered);
     }
 
     void TransferOwnerships() {
-        player1.photonView.TransferOwnership(1);
-        player2.photonView.TransferOwnership(2);
+        // Maybe not necessary.
+        Player[] players = PhotonNetwork.PlayerList;
+        player1.photonView.TransferOwnership(players[0].IsMasterClient ? players[0] : players[1]);
+        player2.photonView.TransferOwnership(players[0].IsMasterClient ? players[1] : players[0]);
     }
 
     public void CheckWinCondition() {

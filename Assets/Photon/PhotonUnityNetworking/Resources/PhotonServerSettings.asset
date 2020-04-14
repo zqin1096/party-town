@@ -50,5 +50,6 @@ MonoBehaviour:
   - GetCard
   - SetMessageBox
   - FrozePlayer
+  - ActivateGameStartingText
   DisableAutoOpenWizard: 1
   ShowSettings: 0

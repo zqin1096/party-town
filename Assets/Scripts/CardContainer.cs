@@ -107,7 +107,7 @@ public class CardContainer : MonoBehaviourPun {
     }
 
     void Update() {
-        if (this.card.CanSelect()) {
+        if (this.card != null && this.card.CanSelect()) {
             gameObject.GetComponent<EventTrigger>().enabled = true;
             ChangeAlpha(true);
         } else {
