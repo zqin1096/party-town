@@ -43,6 +43,9 @@ public class CardContainer : MonoBehaviourPun {
                 case "Special Attack":
                     this.card = new SpecialAttack();
                     break;
+                case "Billizard":
+                    this.card = new BillizardCard();
+                    break;
                 default:
                     break;
             }

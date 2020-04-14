@@ -119,7 +119,7 @@ public class PlayerController : MonoBehaviourPun {
     }
 
     public void EndTurn() {
-        if(this.isFrozen)
+        if (this.isFrozen)
             this.DefrozePlayer();
         if (selectedCard != null) {
             selectedCard.transform.position = new Vector2(selectedCard.transform.position.x, selectedCard.transform.position.y - CardContainer.SelectedCardYOffset);
