@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PhotonServerSettings
   m_EditorClassIdentifier: 
   AppSettings:
-    AppIdRealtime: 
+    AppIdRealtime: 0711a930-4f38-4855-9f9c-a61b14375fe7
     AppIdChat: 
     AppIdVoice: 
     AppVersion: 
@@ -29,21 +29,27 @@ MonoBehaviour:
   RunInBackground: 1
   StartInOfflineMode: 0
   RpcList:
-  - ActivateGameStartingText
   - ClickRpc
-  - CreateScene
   - DestroyRpc
-  - FrozePlayer
-  - GetCard
+  - ChangeScene
+  - UpdateLobbyUI
+  - Initialize
+  - SetNextTurn
+  - TakeDamage
+  - UpdateHealth
+  - TakeEffect
+  - UpdateState
+  - CreateScene
+  - RemoveCard
+  - DeclareGameEnd
   - GetRequest
   - GetResponse
-  - Initialize
-  - RmoveCard
-  - SetMessageBox
-  - SetNextTurn
-  - UpdateHealth
-  - UpdateLobbyUI
-  - Use
   - WinGame
+  - Use
+  - RmoveCard
+  - GetCard
+  - SetMessageBox
+  - FrozePlayer
+  - ActivateGameStartingText
   DisableAutoOpenWizard: 1
   ShowSettings: 0

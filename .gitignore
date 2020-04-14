@@ -492,4 +492,3 @@ MigrationBackup/
 *.app
 *.app/**/*
 ProjectSettings/**/*
-webgl/
