@@ -22,7 +22,6 @@ public class CardContainer : MonoBehaviourPun {
             this.card = CreateRandomCard();
             this.label.text = this.card.label;
             this.number.text = this.card.number;
-            Debug.Log(this.card.number);
             this.description.text = this.card.desc;
             this.typeText.text = this.card.type;
             this.cardImage.sprite = this.card.cardSprite;
