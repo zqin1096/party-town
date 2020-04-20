@@ -5,11 +5,15 @@ using UnityEngine;
 public class SoundManager : MonoBehaviour {
     public static AudioClip painSound;
     public static AudioClip cardTaken;
+    public static AudioClip healSound;
+    public static AudioClip attackSound;
     static AudioSource audioSource;
     // Start is called before the first frame update
     void Start() {
         painSound = Resources.Load<AudioClip>("Pain");
         cardTaken = Resources.Load<AudioClip>("TakeCard");
+        healSound = Resources.Load<AudioClip>("Heal");
+        attackSound = Resources.Load<AudioClip>("Attack");
         audioSource = GetComponent<AudioSource>();
     }
 
@@ -20,6 +24,12 @@ public class SoundManager : MonoBehaviour {
                 break;
             case "cardTaken":
                 audioSource.PlayOneShot(cardTaken);
+                break;
+            case "heal":
+                audioSource.PlayOneShot(healSound);
+                break;
+            case "attack":
+                audioSource.PlayOneShot(attackSound);
                 break;
         }
     }

@@ -31,6 +31,7 @@ public class HealCard : Card {
 
     public override void PlayCard() {
         int hp = GameManager.GetLocal().GetCurrentHP() + 1;
+        SoundManager.PlaySound("heal");
         GameManager.GetLocal().SetCurrentHP(hp);
         GameManager.GetLocal().photonView.RPC("UpdateHealth", GameManager.GetRemote().player, hp, false);
         GameManager.GetLocal().photonView.RPC("UpdateHealth", GameManager.GetLocal().player, hp, true);
