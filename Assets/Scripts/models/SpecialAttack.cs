@@ -31,6 +31,7 @@ public class SpecialAttack : Card {
     }
 
     public override void PlayCard() {
+        SoundManager.PlaySound("specialAttack");
         GameManager.GetLocal().numberOfAttack++;
         // When a players uses the Attack card, this player is waiting for response.
         GameManager.GetLocal().SetIsWaitingResponse(true);

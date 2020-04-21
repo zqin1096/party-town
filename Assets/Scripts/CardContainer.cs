@@ -141,6 +141,9 @@ public class CardContainer : MonoBehaviour {
     }
 
     public void DoResponse() {
+        if (this.card.label == "Defense") {
+            SoundManager.PlaySound("defense");
+        }
         string nickname = GameManager.GetLocal().player.NickName;
         GameManager.instance.photonView.RPC("SetMessageBox", RpcTarget.All, nickname + " responses with " + GameManager.GetLocal().getSelectedCard().card.label);
         //photonView.RPC("Use", GameManager.GetRemote().player, false);
@@ -169,6 +172,11 @@ public class CardContainer : MonoBehaviour {
             color.a = 0.45f;
         }
         gameObject.GetComponent<Image>().color = color;
+        //if (canBePlayed) {
+        //    gameObject.GetComponent<CanvasGroup>().alpha = 1f;
+        //} else {
+        //    gameObject.GetComponent<CanvasGroup>().alpha = 0.45f;
+        //}
     }
 
     public void ToggleSelect() {

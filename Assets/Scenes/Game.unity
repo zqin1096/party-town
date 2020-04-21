@@ -823,6 +823,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deck: {fileID: 1140490618257042397}
   enemy: {fileID: 1367426995}
+  table: {fileID: 879340624}
   cardPreb: {fileID: 5569360743696945357, guid: b0e7c232036c2a945968b7d8cebd7aaa,
     type: 3}
   localHP: {fileID: 802915192}
@@ -1337,7 +1338,7 @@ MonoBehaviour:
   m_outlineColor:
     serializedVersion: 2
     rgba: 4278190080
-  m_fontSize: 58.2
+  m_fontSize: 58.25
   m_fontSizeBase: 35
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1992,6 +1993,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deck: {fileID: 1140490618257042397}
   enemy: {fileID: 1367426995}
+  table: {fileID: 879340624}
   cardPreb: {fileID: 5569360743696945357, guid: b0e7c232036c2a945968b7d8cebd7aaa,
     type: 3}
   localHP: {fileID: 802915192}
@@ -2520,7 +2522,7 @@ MonoBehaviour:
   m_outlineColor:
     serializedVersion: 2
     rgba: 4278190080
-  m_fontSize: 58.2
+  m_fontSize: 58.25
   m_fontSizeBase: 35
   m_fontWeight: 400
   m_enableAutoSizing: 1

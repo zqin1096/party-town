@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
+using ExitGames.Client.Photon;
 
 public class GameManager : MonoBehaviourPun {
     public PlayerController player1;
@@ -15,6 +16,10 @@ public class GameManager : MonoBehaviourPun {
     public PlayerController currentPlayer;
     public float postGameTime = 30f;
     public static bool isGameEnded;
+
+    public const byte INITIALIZE_PLAYERS_DONE_EVENT = 1;
+    public const int INITIALIZE_PLAYERS_DONE = 2;
+    public static int numOfPlayersInitialized = 0;
 
     [PunRPC]
     void SetNextTurn() {
@@ -62,6 +67,29 @@ public class GameManager : MonoBehaviourPun {
         }
     }
 
+    void Update() {
+        if (numOfPlayersInitialized == INITIALIZE_PLAYERS_DONE) {
+            Debug.Log(GameManager.GetLocal().numOfcards);
+            Debug.Log(GameManager.GetRemote().numOfcards);
+            photonView.RPC("SetNextTurn", RpcTarget.AllBuffered);
+            numOfPlayersInitialized = 0;
+        }
+    }
+
+    private void OnEnable() {
+        PhotonNetwork.NetworkingClient.EventReceived += NetworkingClient_EventReceived;
+    }
+
+    private void OnDisable() {
+        PhotonNetwork.NetworkingClient.EventReceived -= NetworkingClient_EventReceived;
+    }
+
+    private void NetworkingClient_EventReceived(EventData obj) {
+        if (obj.Code == INITIALIZE_PLAYERS_DONE_EVENT) {
+            numOfPlayersInitialized++;
+        }
+    }
+
     void InitializePlayers() {
         Player[] players = PhotonNetwork.PlayerList;
         foreach (Player player in PhotonNetwork.PlayerList) {
@@ -69,7 +97,7 @@ public class GameManager : MonoBehaviourPun {
         }
         player1.photonView.RPC("Initialize", RpcTarget.AllBuffered, players[0].IsMasterClient ? players[0] : players[1]);
         player2.photonView.RPC("Initialize", RpcTarget.AllBuffered, players[0].IsMasterClient ? players[1] : players[0]);
-        photonView.RPC("SetNextTurn", RpcTarget.AllBuffered);
+        // photonView.RPC("SetNextTurn", RpcTarget.AllBuffered);
     }
 
     void TransferOwnerships() {
