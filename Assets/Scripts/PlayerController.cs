@@ -5,10 +5,12 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
+using ExitGames.Client.Photon;
 
 public class PlayerController : MonoBehaviourPun {
     public GameObject deck;
     public GameObject enemy;
+    public GameObject table;
 
     public GameObject cardPreb;
 
@@ -43,6 +45,8 @@ public class PlayerController : MonoBehaviourPun {
 
     public bool isFrozen = false;
 
+    public const byte INITIALIZE_PLAYERS_DONE_EVENT = 1;
+
     void Update() {
         localNumberOfCards.text = GameManager.GetLocal().numOfcards.ToString();
         if (this.remoteNumberOfCards.text != GameManager.GetRemote().numOfcards.ToString()) {
@@ -65,7 +69,7 @@ public class PlayerController : MonoBehaviourPun {
     }
 
     public void SetCharacter(Character character) {
-        Debug.Log("Player's character is set to " + character.name + "; Player name: " + this.username.text);
+        // Debug.Log("Player's character is set to " + character.name + "; Player name: " + this.username.text);
         this.character = character;
         this.maxHP = character.maxHP;
         this.CharacterName.text = character.name;
@@ -159,6 +163,7 @@ public class PlayerController : MonoBehaviourPun {
         {
             Debug.LogFormat("Character should be using skills now");
             this.character.DrawingStageSkill();
+            Debug.Log("has drawing stage skill");
         } else {
             InitCardWithAnimation(1);
         }
@@ -184,6 +189,9 @@ public class PlayerController : MonoBehaviourPun {
             this.username.text = player.NickName;
             this.remoteUsername.text = player.GetNext().NickName;
             InitCardWithAnimation(4);
+            RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient };
+            SendOptions sendOptions = new SendOptions { Reliability = true };
+            PhotonNetwork.RaiseEvent(INITIALIZE_PLAYERS_DONE_EVENT, null, raiseEventOptions, sendOptions);
         } else {
         }
     }
@@ -279,9 +287,63 @@ public class PlayerController : MonoBehaviourPun {
             GameObject card = Instantiate(cardPreb, new Vector3(0, 0, 0), Quaternion.identity);
             card.GetComponent<CardContainer>().InitializeCard(null);
             cards[i] = card;
-            card.transform.SetParent(deck.transform, false);
+            // card.transform.SetParent(deck.transform, false);
         }
+        StartCoroutine(MoveCards(cards));
+        //IEnumerator MoveCards(GameObject[] items) {
+        //    foreach (GameObject item in items) {
+        //        item.transform.SetParent(table.transform, false);
+        //        // yield return StartCoroutine(Move());
+        //        // IEnumerator Move() {
+        //        iTween.MoveTo(item, iTween.Hash("position", new Vector3(-600, -375, 0),
+        //                                        "time", 1.5f,
+        //                                        "islocal", true,
+        //                                        "oncomplete", "SetCardParentToDeck",
+        //                                        "oncompletetarget", this.gameObject,
+        //                                        "oncompleteparams", item));
+        //        // yield return null;
+        //        // }
+        //        yield return item;
+        //        yield return new WaitForSeconds(1.5f);
+        //    }
+        //}
+        IEnumerator MoveCards(GameObject[] items) {
+            foreach (GameObject item in items) {
+                item.transform.SetParent(table.transform, false);
+                // yield return StartCoroutine(Move());
+                // IEnumerator Move() {
+                iTween.MoveTo(item, iTween.Hash("position", new Vector3(-800, -375, 0),
+                                                "time", 1.5f,
+                                                "islocal", true,
+                                                "onupdate", "ChangeCardAlpha",
+                                                "onupdatetarget", this.gameObject,
+                                                "onupdateparams", item,
+                                                "oncomplete", "SetCardParentToDeck",
+                                                "oncompletetarget", this.gameObject,
+                                                "oncompleteparams", item));
+                // yield return null;
+                // }
+                yield return item;
+                yield return new WaitForSeconds(1.5f);
+            }
+        }
+    }
 
+    void SetCardParentToDeck(object item) {
+        GameObject card = ((GameObject)item);
+        card.transform.SetParent(deck.transform, true);
+        card.GetComponent<CanvasGroup>().alpha = 1f;
+    }
+
+    void SetCardParentToEnemy(object item) {
+        GameObject card = ((GameObject)item);
+        card.transform.SetParent(enemy.transform, true);
+        card.GetComponent<CanvasGroup>().alpha = 1f;
+    }
+
+    void ChangeCardAlpha(object item) {
+        GameObject card = ((GameObject)item);
+        card.GetComponent<CanvasGroup>().alpha -= 0.01f;
     }
 
     [PunRPC]
@@ -304,6 +366,7 @@ public class PlayerController : MonoBehaviourPun {
 
     [PunRPC]
     public void RmoveCard() {
+        Debug.Log("called");
         int random = UnityEngine.Random.Range(0, deck.transform.childCount);
         Transform child = deck.transform.GetChild(random);
         string label = child.GetComponent<CardContainer>().card.label;
@@ -339,6 +402,6 @@ public class PlayerController : MonoBehaviourPun {
         this.discardLabels = label;
         this.discardNum = num;
         this.discardCallback = callback;
-        Debug.LogFormat("PlayerController.Discard(), Num: {0}", num);
+        // Debug.LogFormat("PlayerController.Discard(), Num: {0}", num);
     }
 }
