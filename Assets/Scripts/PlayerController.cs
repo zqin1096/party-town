@@ -266,19 +266,6 @@ public class PlayerController : MonoBehaviourPun {
         this.isFrozen = false;
     }
 
-    //public void InitializeCards(int numOfCards) {
-    //    for (int i = 0; i < numOfCards; i++) {
-    //        GameObject card = PhotonNetwork.Instantiate(
-    //            "CardDisplay",
-    //            new Vector3(0, 0, 0),
-    //            Quaternion.identity
-    //        );
-    //        card.transform.SetParent(deck.transform, false);
-    //        card.GetPhotonView().RPC("Initialize", RpcTarget.Others, false, null);
-    //        card.GetPhotonView().RPC("Initialize", player, true, null);
-    //    }
-    //}
-
     public void InitCardWithAnimation(int numOfCards) {
         photonView.RPC("IncreaseCards", RpcTarget.Others, false, numOfCards);
         photonView.RPC("IncreaseCards", player, true, numOfCards);
@@ -287,33 +274,13 @@ public class PlayerController : MonoBehaviourPun {
             GameObject card = Instantiate(cardPreb, new Vector3(0, 0, 0), Quaternion.identity);
             card.GetComponent<CardContainer>().InitializeCard(null);
             cards[i] = card;
-            // card.transform.SetParent(deck.transform, false);
         }
         StartCoroutine(MoveCards(cards));
-        //IEnumerator MoveCards(GameObject[] items) {
-        //    foreach (GameObject item in items) {
-        //        item.transform.SetParent(table.transform, false);
-        //        // yield return StartCoroutine(Move());
-        //        // IEnumerator Move() {
-        //        iTween.MoveTo(item, iTween.Hash("position", new Vector3(-600, -375, 0),
-        //                                        "time", 1.5f,
-        //                                        "islocal", true,
-        //                                        "oncomplete", "SetCardParentToDeck",
-        //                                        "oncompletetarget", this.gameObject,
-        //                                        "oncompleteparams", item));
-        //        // yield return null;
-        //        // }
-        //        yield return item;
-        //        yield return new WaitForSeconds(1.5f);
-        //    }
-        //}
         IEnumerator MoveCards(GameObject[] items) {
             foreach (GameObject item in items) {
                 item.transform.SetParent(table.transform, false);
-                // yield return StartCoroutine(Move());
-                // IEnumerator Move() {
                 iTween.MoveTo(item, iTween.Hash("position", new Vector3(-800, -375, 0),
-                                                "time", 1.5f,
+                                                "time", 0.5f,
                                                 "islocal", true,
                                                 "onupdate", "ChangeCardAlpha",
                                                 "onupdatetarget", this.gameObject,
@@ -321,10 +288,8 @@ public class PlayerController : MonoBehaviourPun {
                                                 "oncomplete", "SetCardParentToDeck",
                                                 "oncompletetarget", this.gameObject,
                                                 "oncompleteparams", item));
-                // yield return null;
-                // }
                 yield return item;
-                yield return new WaitForSeconds(1.5f);
+                yield return new WaitForSeconds(0.2f);
             }
         }
     }
