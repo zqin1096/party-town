@@ -12,7 +12,6 @@ public class PlayerController : MonoBehaviourPun {
 
     public Text localHP;
     public Text remoteHP;
-    public Text messageBox;
     public Text username;
     public Text remoteUsername;
     public Text localNumberOfCards;
@@ -119,37 +118,61 @@ public class PlayerController : MonoBehaviourPun {
     }
 
     public void EndTurn() {
+        this.SetPromptText("Turn Ending!");
+        Invoke("EndTurnSecond", 1);
+    }
+
+    public void EndTurnSecond()
+    {
         if (this.isFrozen)
             this.DefrozePlayer();
-        if (selectedCard != null) {
+        if (selectedCard != null)
+        {
             selectedCard.transform.position = new Vector2(selectedCard.transform.position.x, selectedCard.transform.position.y - CardContainer.SelectedCardYOffset);
             selectedCard = null;
         }
         this.numberOfAttack = 0;
 
         // if the number of cards you have is more than you maxHP
-        if (this.numOfcards > this.maxHP) {
+        if (this.numOfcards > this.maxHP)
+        {
             AfterDiscarding callback = delegate () {
                 GameManager.instance.photonView.RPC("SetNextTurn", RpcTarget.All);
+                this.SetPromptText("Your opponent is playing...");
             };
             this.Discard(this.numOfcards - this.maxHP, null, callback);
-        } else {
-            GameManager.instance.photonView.RPC("SetNextTurn", RpcTarget.All);
         }
+        else
+        {
+            GameManager.instance.photonView.RPC("SetNextTurn", RpcTarget.All);
+            this.SetPromptText("Your opponent is playing...");
+        }
+        
     }
 
     public void StartTurn() {
-        if (this.character.hasDrawingStageSkill) {
+        this.SetPromptText("Turn starting! Drawing card...");
+        Invoke("StartTurnSecond", 1);
+    }
+
+    public void StartTurnSecond()
+    {
+        if (this.character.hasDrawingStageSkill)
+        {
             Debug.LogFormat("Character should be using skills now");
             this.character.DrawingStageSkill();
-        } else {
+        }
+        else
+        {
             InitializeCards(1);
         }
-        if (this.isFrozen) {
+        this.SetPromptText("Use cards wisely!");
+        if (this.isFrozen)
+        {
             this.SetPromptText("You are frozen!");
             Invoke("EndTurn", 2);
         }
-
+        
     }
 
     [PunRPC]
