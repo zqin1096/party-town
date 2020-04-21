@@ -121,26 +121,29 @@ public class PlayerController : MonoBehaviourPun {
 
     public void EndTurn() {
         this.SetPromptText("Turn Ending!");
+        this.FrozePlayer();
         Invoke("EndTurnSecond", 1);
+        if (selectedCard != null)
+        {
+            selectedCard.transform.position = new Vector2(selectedCard.transform.position.x, selectedCard.transform.position.y - CardContainer.SelectedCardYOffset);
+            selectedCard = null;
+        }
     }
 
     public void EndTurnSecond()
     {
         if (this.isFrozen)
             this.DefrozePlayer();
-        if (selectedCard != null)
-        {
-            selectedCard.transform.position = new Vector2(selectedCard.transform.position.x, selectedCard.transform.position.y - CardContainer.SelectedCardYOffset);
-            selectedCard = null;
-        }
         this.numberOfAttack = 0;
 
         // if the number of cards you have is more than you maxHP
         if (this.numOfcards > this.maxHP)
         {
+            GameManager.instance.photonView.RPC("SetMessageBox", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + " is discarding cards");
             AfterDiscarding callback = delegate () {
                 GameManager.instance.photonView.RPC("SetNextTurn", RpcTarget.All);
                 this.SetPromptText("Your opponent is playing...");
+                GameManager.instance.photonView.RPC("SetMessageBox", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + "'s turn ends!");
             };
             this.Discard(this.numOfcards - this.maxHP, null, callback);
         }
@@ -148,26 +151,29 @@ public class PlayerController : MonoBehaviourPun {
         {
             GameManager.instance.photonView.RPC("SetNextTurn", RpcTarget.All);
             this.SetPromptText("Your opponent is playing...");
+            GameManager.instance.photonView.RPC("SetMessageBox", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + "'s turn ends!");
         }
-        
     }
 
     public void StartTurn() {
+        GameManager.instance.photonView.RPC("SetMessageBox", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + "'s turn starts!");
         this.SetPromptText("Turn starting! Drawing card...");
-        Invoke("StartTurnSecond", 1);
-    }
-
-    public void StartTurnSecond()
-    {
         if (this.character.hasDrawingStageSkill)
         {
             Debug.LogFormat("Character should be using skills now");
             this.character.DrawingStageSkill();
             Debug.Log("has drawing stage skill");
-        } else {
+        }
+        else
+        {
             InitCardWithAnimation(2);
         }
-        this.SetPromptText("Use cards wisely!");
+        Invoke("StartTurnSecond", 2);
+    }
+
+    public void StartTurnSecond()
+    {
+        this.SetPromptText("Use card wisely!");
         if (this.isFrozen)
         {
             this.SetPromptText("You are frozen!");
@@ -201,9 +207,11 @@ public class PlayerController : MonoBehaviourPun {
         this.isGettingRequest = true;
         this.enemyCard = enemyCard;
         this.requestedCard = requestedCard;
+        this.SetPromptText("You are under attack! Defense yourself!");
     }
 
     public void SendResponse(bool response) {
+        this.SetPromptText("");
         this.isGettingRequest = false;
         if (response) {
             switch (this.enemyCard) {
@@ -224,7 +232,7 @@ public class PlayerController : MonoBehaviourPun {
                     GameManager.instance.CheckWinCondition();
                     break;
                 case "Special Attack":
-                    int damage = UnityEngine.Random.Range(1, 3);
+                    int damage = this.isFrozen ? 2 : 1;
                     this.currentHP -= damage;
                     SoundManager.PlaySound("pain");
                     if (currentHP < 0) {
@@ -289,7 +297,7 @@ public class PlayerController : MonoBehaviourPun {
                                                 "oncompletetarget", this.gameObject,
                                                 "oncompleteparams", item));
                 yield return item;
-                yield return new WaitForSeconds(0.2f);
+                yield return new WaitForSeconds(0.3f);
             }
         }
     }
