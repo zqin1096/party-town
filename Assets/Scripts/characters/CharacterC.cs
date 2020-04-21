@@ -11,6 +11,6 @@ public class CharacterC : Character {
     public override bool hasDrawingStageSkill { get { return true; } }
 
     public override void DrawingStageSkill() {
-        GameManager.GetLocal().InitializeCards(3);
+        GameManager.GetLocal().InitCardWithAnimation(3);
     }
 }

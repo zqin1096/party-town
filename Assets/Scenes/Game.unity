@@ -823,6 +823,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deck: {fileID: 1140490618257042397}
   enemy: {fileID: 1367426995}
+  cardPreb: {fileID: 5569360743696945357, guid: b0e7c232036c2a945968b7d8cebd7aaa,
+    type: 3}
   localHP: {fileID: 802915192}
   remoteHP: {fileID: 252237048}
   messageBox: {fileID: 90258373}
@@ -1990,6 +1992,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deck: {fileID: 1140490618257042397}
   enemy: {fileID: 1367426995}
+  cardPreb: {fileID: 5569360743696945357, guid: b0e7c232036c2a945968b7d8cebd7aaa,
+    type: 3}
   localHP: {fileID: 802915192}
   remoteHP: {fileID: 252237048}
   messageBox: {fileID: 90258373}

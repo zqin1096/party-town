@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviourPun {
     public GameObject deck;
     public GameObject enemy;
 
+    public GameObject cardPreb;
+
     public Text localHP;
     public Text remoteHP;
     public Text username;
@@ -45,15 +47,11 @@ public class PlayerController : MonoBehaviourPun {
         localNumberOfCards.text = GameManager.GetLocal().numOfcards.ToString();
         if (this.remoteNumberOfCards.text != GameManager.GetRemote().numOfcards.ToString()) {
             foreach (Transform child in enemy.transform) {
-                GameObject.Destroy(child.gameObject);
+                Destroy(child.gameObject);
             }
 
             for (int i = 0; i < GameManager.GetRemote().numOfcards; i += 1) {
-                GameObject card = PhotonNetwork.Instantiate(
-                    "CardDisplay",
-                    new Vector3(0, 0, 0),
-                    Quaternion.identity
-                );
+                GameObject card = Instantiate(cardPreb, new Vector3(0, 0, 0), Quaternion.identity);
                 card.transform.Find("CardFront").gameObject.SetActive(false);
                 card.transform.Find("CardBack").gameObject.SetActive(true);
                 card.transform.SetParent(enemy.transform, false);
@@ -161,10 +159,8 @@ public class PlayerController : MonoBehaviourPun {
         {
             Debug.LogFormat("Character should be using skills now");
             this.character.DrawingStageSkill();
-        }
-        else
-        {
-            InitializeCards(1);
+        } else {
+            InitCardWithAnimation(1);
         }
         this.SetPromptText("Use cards wisely!");
         if (this.isFrozen)
@@ -187,7 +183,7 @@ public class PlayerController : MonoBehaviourPun {
         if (player.IsLocal) {
             this.username.text = player.NickName;
             this.remoteUsername.text = player.GetNext().NickName;
-            InitializeCards(4);
+            InitCardWithAnimation(4);
         } else {
         }
     }
@@ -262,16 +258,47 @@ public class PlayerController : MonoBehaviourPun {
         this.isFrozen = false;
     }
 
-    public void InitializeCards(int numOfCards) {
+    //public void InitializeCards(int numOfCards) {
+    //    for (int i = 0; i < numOfCards; i++) {
+    //        GameObject card = PhotonNetwork.Instantiate(
+    //            "CardDisplay",
+    //            new Vector3(0, 0, 0),
+    //            Quaternion.identity
+    //        );
+    //        card.transform.SetParent(deck.transform, false);
+    //        card.GetPhotonView().RPC("Initialize", RpcTarget.Others, false, null);
+    //        card.GetPhotonView().RPC("Initialize", player, true, null);
+    //    }
+    //}
+
+    public void InitCardWithAnimation(int numOfCards) {
+        photonView.RPC("IncreaseCards", RpcTarget.Others, false, numOfCards);
+        photonView.RPC("IncreaseCards", player, true, numOfCards);
+        GameObject[] cards = new GameObject[numOfCards];
         for (int i = 0; i < numOfCards; i++) {
-            GameObject card = PhotonNetwork.Instantiate(
-                "CardDisplay",
-                new Vector3(0, 0, 0),
-                Quaternion.identity
-            );
+            GameObject card = Instantiate(cardPreb, new Vector3(0, 0, 0), Quaternion.identity);
+            card.GetComponent<CardContainer>().InitializeCard(null);
+            cards[i] = card;
             card.transform.SetParent(deck.transform, false);
-            card.GetPhotonView().RPC("Initialize", RpcTarget.Others, false, null);
-            card.GetPhotonView().RPC("Initialize", player, true, null);
+        }
+
+    }
+
+    [PunRPC]
+    public void IncreaseCards(bool isMine, int numOfCards) {
+        if (isMine) {
+            GameManager.GetLocal().numOfcards += numOfCards;
+        } else {
+            GameManager.GetRemote().numOfcards += numOfCards;
+        }
+    }
+
+    [PunRPC]
+    void UseCard(bool isMine) {
+        if (isMine) {
+            GameManager.GetLocal().numOfcards--;
+        } else {
+            GameManager.GetRemote().numOfcards--;
         }
     }
 
@@ -280,19 +307,26 @@ public class PlayerController : MonoBehaviourPun {
         int random = UnityEngine.Random.Range(0, deck.transform.childCount);
         Transform child = deck.transform.GetChild(random);
         string label = child.GetComponent<CardContainer>().card.label;
-        child.GetComponent<CardContainer>().photonView.RPC("Use", GameManager.GetRemote().player, false);
-        child.GetComponent<CardContainer>().photonView.RPC("Use", GameManager.GetLocal().player, true);
-        PhotonNetwork.Destroy(child.gameObject);
+        //child.GetComponent<CardContainer>().photonView.RPC("Use", GameManager.GetRemote().player, false);
+        //child.GetComponent<CardContainer>().photonView.RPC("Use", GameManager.GetLocal().player, true);
+        photonView.RPC("UseCard", RpcTarget.Others, false);
+        photonView.RPC("UseCard", player, true);
+        Destroy(child.gameObject);
+        // Animation: card move from deck to enemy.
         SoundManager.PlaySound("cardTaken");
         GameManager.GetRemote().photonView.RPC("GetCard", GameManager.GetRemote().player, label);
     }
 
     [PunRPC]
     public void GetCard(string label) {
-        GameObject card = PhotonNetwork.Instantiate("CardDisplay", new Vector3(0, 0, 0), Quaternion.identity);
-        card.GetPhotonView().RPC("Initialize", RpcTarget.Others, false, label);
-        card.GetPhotonView().RPC("Initialize", player, true, label);
+        photonView.RPC("IncreaseCards", RpcTarget.Others, false, 1);
+        photonView.RPC("IncreaseCards", player, true, 1);
+        GameObject card = Instantiate(cardPreb, new Vector3(0, 0, 0), Quaternion.identity);
+        card.GetComponent<CardContainer>().InitializeCard(label);
+        //card.GetPhotonView().RPC("Initialize", RpcTarget.Others, false, label);
+        //card.GetPhotonView().RPC("Initialize", player, true, label);
         SoundManager.PlaySound("cardTaken");
+        // Animation: card move from enemy to deck.
         card.transform.SetParent(deck.transform, false);
     }
 

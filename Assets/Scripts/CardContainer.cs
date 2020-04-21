@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using Photon.Pun;
 using UnityEngine.EventSystems;
 
-public class CardContainer : MonoBehaviourPun {
+public class CardContainer : MonoBehaviour {
     public Card card;
     // public Image suitImage;
     public Text number;
@@ -16,8 +16,52 @@ public class CardContainer : MonoBehaviourPun {
     public Image cardImage;
     public static readonly int SelectedCardYOffset = 15;
 
-    [PunRPC]
-    void Initialize(bool isMine, string label) {
+    //[PunRPC]
+    //void Initialize(bool isMine, string label) {
+    //    if (label == null) {
+    //        this.card = CreateRandomCard();
+    //        this.label.text = this.card.label;
+    //        this.number.text = this.card.number;
+    //        this.description.text = this.card.desc;
+    //        this.typeText.text = this.card.type;
+    //        this.cardImage.sprite = this.card.cardSprite;
+    //    } else {
+    //        switch (label) {
+    //            case "Attack":
+    //                this.card = new AttackCard();
+    //                break;
+    //            case "Defense":
+    //                this.card = new DefenseCard();
+    //                break;
+    //            case "Heal":
+    //                this.card = new HealCard();
+    //                break;
+    //            case "Take Card":
+    //                this.card = new TakeCard();
+    //                break;
+    //            case "Special Attack":
+    //                this.card = new SpecialAttack();
+    //                break;
+    //            case "Billizard":
+    //                this.card = new BillizardCard();
+    //                break;
+    //            default:
+    //                break;
+    //        }
+    //        this.label.text = this.card.label;
+    //        this.number.text = this.card.number;
+    //        this.description.text = this.card.desc;
+    //        this.typeText.text = this.card.type;
+    //        this.cardImage.sprite = this.card.cardSprite;
+    //    }
+    //    if (isMine) {
+    //        GameManager.GetLocal().numOfcards++;
+    //    } else {
+    //        GameManager.GetRemote().numOfcards++;
+    //    }
+    //}
+
+    public void InitializeCard(string label) {
         if (label == null) {
             this.card = CreateRandomCard();
             this.label.text = this.card.label;
@@ -54,21 +98,16 @@ public class CardContainer : MonoBehaviourPun {
             this.typeText.text = this.card.type;
             this.cardImage.sprite = this.card.cardSprite;
         }
-        if (isMine) {
-            GameManager.GetLocal().numOfcards++;
-        } else {
-            GameManager.GetRemote().numOfcards++;
-        }
     }
 
-    [PunRPC]
-    void Use(bool isMine) {
-        if (isMine) {
-            GameManager.GetLocal().numOfcards--;
-        } else {
-            GameManager.GetRemote().numOfcards--;
-        }
-    }
+    //[PunRPC]
+    //void Use(bool isMine) {
+    //    if (isMine) {
+    //        GameManager.GetLocal().numOfcards--;
+    //    } else {
+    //        GameManager.GetRemote().numOfcards--;
+    //    }
+    //}
 
     public Card CreateRandomCard() {
         int randomValue = UnityEngine.Random.Range(0, 110);
@@ -93,18 +132,22 @@ public class CardContainer : MonoBehaviourPun {
     public void DoEffect() {
         GameManager.instance.photonView.RPC("SetMessageBox", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + " uses " + GameManager.GetLocal().getSelectedCard().card.label);
         this.card.PlayCard();
-        photonView.RPC("Use", GameManager.GetRemote().player, false);
-        photonView.RPC("Use", GameManager.GetLocal().player, true);
-        PhotonNetwork.Destroy(this.gameObject);
+        // photonView.RPC("Use", GameManager.GetRemote().player, false);
+        // photonView.RPC("Use", GameManager.GetLocal().player, true);
+        GameManager.GetLocal().photonView.RPC("UseCard", GameManager.GetRemote().player, false);
+        GameManager.GetLocal().photonView.RPC("UseCard", GameManager.GetLocal().player, true);
+        Destroy(this.gameObject);
         GameManager.GetLocal().setSelectedCard(null);
     }
 
     public void DoResponse() {
         string nickname = GameManager.GetLocal().player.NickName;
         GameManager.instance.photonView.RPC("SetMessageBox", RpcTarget.All, nickname + " responses with " + GameManager.GetLocal().getSelectedCard().card.label);
-        photonView.RPC("Use", GameManager.GetRemote().player, false);
-        photonView.RPC("Use", GameManager.GetLocal().player, true);
-        PhotonNetwork.Destroy(this.gameObject);
+        //photonView.RPC("Use", GameManager.GetRemote().player, false);
+        //photonView.RPC("Use", GameManager.GetLocal().player, true);
+        GameManager.GetLocal().photonView.RPC("UseCard", GameManager.GetRemote().player, false);
+        GameManager.GetLocal().photonView.RPC("UseCard", GameManager.GetLocal().player, true);
+        Destroy(this.gameObject);
         GameManager.GetLocal().setSelectedCard(null);
     }
 
@@ -142,9 +185,11 @@ public class CardContainer : MonoBehaviourPun {
                     GameManager.GetLocal().SetPromptText("");
                     GameManager.GetLocal().discardMode = false;
                     foreach (CardContainer card in GameManager.GetLocal().discardBucket) {
-                        photonView.RPC("Use", GameManager.GetRemote().player, false);
-                        photonView.RPC("Use", GameManager.GetLocal().player, true);
-                        PhotonNetwork.Destroy(card.gameObject);
+                        //photonView.RPC("Use", GameManager.GetRemote().player, false);
+                        //photonView.RPC("Use", GameManager.GetLocal().player, true);
+                        GameManager.GetLocal().photonView.RPC("UseCard", GameManager.GetRemote().player, false);
+                        GameManager.GetLocal().photonView.RPC("UseCard", GameManager.GetLocal().player, true);
+                        Destroy(card.gameObject);
                     }
                     GameManager.GetLocal().discardBucket.Clear();
                     GameManager.GetLocal().discardCallback();
