@@ -165,7 +165,7 @@ public class PlayerController : MonoBehaviourPun {
             this.character.DrawingStageSkill();
             Debug.Log("has drawing stage skill");
         } else {
-            InitCardWithAnimation(1);
+            InitCardWithAnimation(2);
         }
         this.SetPromptText("Use cards wisely!");
         if (this.isFrozen)
