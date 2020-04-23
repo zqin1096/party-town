@@ -123,22 +123,19 @@ public class PlayerController : MonoBehaviourPun {
         this.SetPromptText("Turn Ending!");
         this.FrozePlayer();
         Invoke("EndTurnSecond", 1);
-        if (selectedCard != null)
-        {
+        if (selectedCard != null) {
             selectedCard.transform.position = new Vector2(selectedCard.transform.position.x, selectedCard.transform.position.y - CardContainer.SelectedCardYOffset);
             selectedCard = null;
         }
     }
 
-    public void EndTurnSecond()
-    {
+    public void EndTurnSecond() {
         if (this.isFrozen)
             this.DefrozePlayer();
         this.numberOfAttack = 0;
 
         // if the number of cards you have is more than you maxHP
-        if (this.numOfcards > this.maxHP)
-        {
+        if (this.numOfcards > this.maxHP) {
             GameManager.instance.photonView.RPC("SetMessageBox", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + " is discarding cards");
             AfterDiscarding callback = delegate () {
                 GameManager.instance.photonView.RPC("SetNextTurn", RpcTarget.All);
@@ -146,9 +143,7 @@ public class PlayerController : MonoBehaviourPun {
                 GameManager.instance.photonView.RPC("SetMessageBox", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + "'s turn ends!");
             };
             this.Discard(this.numOfcards - this.maxHP, null, callback);
-        }
-        else
-        {
+        } else {
             GameManager.instance.photonView.RPC("SetNextTurn", RpcTarget.All);
             this.SetPromptText("Your opponent is playing...");
             GameManager.instance.photonView.RPC("SetMessageBox", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + "'s turn ends!");
@@ -158,28 +153,23 @@ public class PlayerController : MonoBehaviourPun {
     public void StartTurn() {
         GameManager.instance.photonView.RPC("SetMessageBox", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + "'s turn starts!");
         this.SetPromptText("Turn starting! Drawing card...");
-        if (this.character.hasDrawingStageSkill)
-        {
+        if (this.character.hasDrawingStageSkill) {
             Debug.LogFormat("Character should be using skills now");
             this.character.DrawingStageSkill();
             Debug.Log("has drawing stage skill");
-        }
-        else
-        {
+        } else {
             InitCardWithAnimation(2);
         }
-        Invoke("StartTurnSecond", 2);
+        Invoke("StartTurnSecond", 2);  // Potential problem: should wait for drawing card animation (coroutine) to finish before executing this line.
     }
 
-    public void StartTurnSecond()
-    {
+    public void StartTurnSecond() {
         this.SetPromptText("Use card wisely!");
-        if (this.isFrozen)
-        {
+        if (this.isFrozen) {    // Potential problem: related to StartTurn(). Player is frozen during animation and this line maybe called before animation finishes.
             this.SetPromptText("You are frozen!");
             Invoke("EndTurn", 2);
         }
-        
+
     }
 
     [PunRPC]
@@ -275,6 +265,7 @@ public class PlayerController : MonoBehaviourPun {
     }
 
     public void InitCardWithAnimation(int numOfCards) {
+        this.FrozePlayer();
         photonView.RPC("IncreaseCards", RpcTarget.Others, false, numOfCards);
         photonView.RPC("IncreaseCards", player, true, numOfCards);
         GameObject[] cards = new GameObject[numOfCards];
@@ -283,7 +274,13 @@ public class PlayerController : MonoBehaviourPun {
             card.GetComponent<CardContainer>().InitializeCard(null);
             cards[i] = card;
         }
-        StartCoroutine(MoveCards(cards));
+        StartCoroutine(Wait(cards));
+        IEnumerator Wait(GameObject[] items) {
+            // Wait for animation of all the cards to finish, then defroze the player.
+            yield return StartCoroutine(MoveCards(items));
+            DefrozePlayer();
+        }
+
         IEnumerator MoveCards(GameObject[] items) {
             foreach (GameObject item in items) {
                 item.transform.SetParent(table.transform, false);
@@ -316,7 +313,7 @@ public class PlayerController : MonoBehaviourPun {
 
     void ChangeCardAlpha(object item) {
         GameObject card = ((GameObject)item);
-        card.GetComponent<CanvasGroup>().alpha -= 0.01f;
+        card.GetComponent<CanvasGroup>().alpha -= 0.02f;
     }
 
     [PunRPC]
@@ -338,7 +335,7 @@ public class PlayerController : MonoBehaviourPun {
     }
 
     [PunRPC]
-    public void RmoveCard() {
+    public void RemoveCard() {
         Debug.Log("called");
         int random = UnityEngine.Random.Range(0, deck.transform.childCount);
         Transform child = deck.transform.GetChild(random);

@@ -28,6 +28,6 @@ public class TakeCard : Card {
         return false;
     }
     public override void PlayCard() {
-        GameManager.GetRemote().photonView.RPC("RmoveCard", GameManager.GetRemote().player);
+        GameManager.GetRemote().photonView.RPC("RemoveCard", GameManager.GetRemote().player);
     }
 }

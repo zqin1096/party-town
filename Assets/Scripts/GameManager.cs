@@ -67,11 +67,16 @@ public class GameManager : MonoBehaviourPun {
         }
     }
 
+    void Wait() {
+        photonView.RPC("SetNextTurn", RpcTarget.AllBuffered);
+    }
+
     void Update() {
         if (numOfPlayersInitialized == INITIALIZE_PLAYERS_DONE) {
             Debug.Log(GameManager.GetLocal().numOfcards);
             Debug.Log(GameManager.GetRemote().numOfcards);
-            photonView.RPC("SetNextTurn", RpcTarget.AllBuffered);
+            Invoke("Wait", 2f);
+            // photonView.RPC("SetNextTurn", RpcTarget.AllBuffered);
             numOfPlayersInitialized = 0;
         }
     }

@@ -14,7 +14,7 @@ public class CharacterB : Character {
         if (GameManager.GetRemote().numOfcards != 0) {
             Debug.Log(GameManager.GetRemote().numOfcards);
             // Debug.LogFormat("Character B's skill used by {0}", GameManager.GetLocal().username.text);
-            GameManager.GetRemote().photonView.RPC("RmoveCard", GameManager.GetRemote().player);
+            GameManager.GetRemote().photonView.RPC("RemoveCard", GameManager.GetRemote().player);
             GameManager.GetLocal().InitCardWithAnimation(1);
         } else {
             GameManager.GetLocal().InitCardWithAnimation(2);
