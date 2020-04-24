@@ -22,7 +22,6 @@ public class PlayerController : MonoBehaviourPun {
     public Text remoteNumberOfCards;
     // This should be used to give hints
     public Text promtText;
-    public Text CharacterName;
 
     public Player player;
     public int numOfcards;
@@ -72,7 +71,6 @@ public class PlayerController : MonoBehaviourPun {
         // Debug.Log("Player's character is set to " + character.name + "; Player name: " + this.username.text);
         this.character = character;
         this.maxHP = character.maxHP;
-        this.CharacterName.text = character.name;
     }
 
     public string GetEnemyCard() {
