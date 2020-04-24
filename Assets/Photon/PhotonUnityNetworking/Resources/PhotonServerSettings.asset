@@ -53,5 +53,6 @@ MonoBehaviour:
   - ActivateGameStartingText
   - IncreaseCards
   - UseCard
+  - LogText
   DisableAutoOpenWizard: 1
   ShowSettings: 0

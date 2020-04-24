@@ -14,6 +14,31 @@ public class GameUI : MonoBehaviourPun {
     public Text winText;
     public Text messageBox;
 
+    public GameObject textTemplate;
+    private List<GameObject> textItems;
+
+    void Start() {
+        textItems = new List<GameObject>();
+    }
+
+    [PunRPC]
+    public void LogText(string newTextString, string newColor) {
+        if (textItems.Count == 10) {
+            GameObject temp = textItems[0];
+            Destroy(temp.gameObject);
+            textItems.Remove(temp);
+
+        }
+        GameObject newText = Instantiate(textTemplate);
+        newText.SetActive(true);
+
+        Color color = string.Compare(newColor, "red") == 0 ? Color.red : Color.green;
+
+        newText.GetComponent<TextLogItem>().SetText(newTextString, color);
+        newText.transform.SetParent(textTemplate.transform.parent, false);
+        textItems.Add(newText.gameObject);
+    }
+
     public static GameUI instance;
     void Awake() {
         instance = this;

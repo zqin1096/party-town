@@ -133,7 +133,6 @@ public class PlayerController : MonoBehaviourPun {
         if (this.isFrozen)
             this.DefrozePlayer();
         this.numberOfAttack = 0;
-
         // if the number of cards you have is more than you maxHP
         if (this.numOfcards > this.maxHP) {
             GameManager.instance.photonView.RPC("SetMessageBox", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + " is discarding cards");
