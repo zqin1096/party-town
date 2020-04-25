@@ -128,27 +128,28 @@ public class PlayerController : MonoBehaviourPun {
     }
 
     public void EndTurnSecond() {
-        if (this.isFrozen)
-            this.DefrozePlayer();
         this.numberOfAttack = 0;
+        this.DefrozePlayer();
+        string color = GameManager.GetLocal().player.IsMasterClient ? "red" : "green";
         // if the number of cards you have is more than you maxHP
         if (this.numOfcards > this.maxHP) {
-            GameManager.instance.photonView.RPC("SetMessageBox", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + " is discarding cards");
+            GameManager.instance.photonView.RPC("LogText", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + " is discarding cards.", color);
             AfterDiscarding callback = delegate () {
-                GameManager.instance.photonView.RPC("SetNextTurn", RpcTarget.All);
+                GameManager.instance.photonView.RPC("LogText", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + "'s turn ends!", color);
                 this.SetPromptText("Your opponent is playing...");
-                GameManager.instance.photonView.RPC("SetMessageBox", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + "'s turn ends!");
+                GameManager.instance.photonView.RPC("SetNextTurn", RpcTarget.All);
             };
             this.Discard(this.numOfcards - this.maxHP, null, callback);
         } else {
-            GameManager.instance.photonView.RPC("SetNextTurn", RpcTarget.All);
+            GameManager.instance.photonView.RPC("LogText", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + "'s turn ends!", color);
             this.SetPromptText("Your opponent is playing...");
-            GameManager.instance.photonView.RPC("SetMessageBox", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + "'s turn ends!");
+            GameManager.instance.photonView.RPC("SetNextTurn", RpcTarget.All);
         }
     }
 
     public void StartTurn() {
-        GameManager.instance.photonView.RPC("SetMessageBox", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + "'s turn starts!");
+        string color = GameManager.GetLocal().player.IsMasterClient ? "red" : "green";
+        GameManager.instance.photonView.RPC("LogText", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + "'s turn starts!", color);
         this.SetPromptText("Turn starting! Drawing card...");
         if (this.character.hasDrawingStageSkill) {
             Debug.LogFormat("Character should be using skills now");
@@ -210,9 +211,11 @@ public class PlayerController : MonoBehaviourPun {
                     break;
             }
         } else {
+            string color = GameManager.GetLocal().player.IsMasterClient ? "red" : "green";
             switch (this.enemyCard) {
                 case "Attack":
                     this.currentHP--;
+                    GameManager.instance.photonView.RPC("LogText", RpcTarget.All, GameManager.GetLocal().player.NickName + " loses 1hp!", color);
                     SoundManager.PlaySound("pain");
                     GameManager.GetLocal().photonView.RPC("UpdateHealth", RpcTarget.Others, currentHP, false);
                     GameManager.GetLocal().photonView.RPC("UpdateHealth", player, currentHP, true);
@@ -221,6 +224,7 @@ public class PlayerController : MonoBehaviourPun {
                 case "Special Attack":
                     int damage = this.isFrozen ? 2 : 1;
                     this.currentHP -= damage;
+                    GameManager.instance.photonView.RPC("LogText", RpcTarget.All, GameManager.GetLocal().player.NickName + " loses " + damage + "hp!", color);
                     SoundManager.PlaySound("pain");
                     if (currentHP < 0) {
                         currentHP = 0;
@@ -262,6 +266,7 @@ public class PlayerController : MonoBehaviourPun {
     }
 
     public void InitCardWithAnimation(int numOfCards) {
+        bool temp = this.isFrozen;
         this.FrozePlayer();
         photonView.RPC("IncreaseCards", RpcTarget.Others, false, numOfCards);
         photonView.RPC("IncreaseCards", player, true, numOfCards);
@@ -275,7 +280,9 @@ public class PlayerController : MonoBehaviourPun {
         IEnumerator Wait(GameObject[] items) {
             // Wait for animation of all the cards to finish, then defroze the player.
             yield return StartCoroutine(MoveCards(items));
-            DefrozePlayer();
+            if (!temp) {
+                DefrozePlayer();
+            }
         }
 
         IEnumerator MoveCards(GameObject[] items) {
@@ -357,6 +364,8 @@ public class PlayerController : MonoBehaviourPun {
         //card.GetPhotonView().RPC("Initialize", player, true, label);
         SoundManager.PlaySound("cardTaken");
         // Animation: card move from enemy to deck.
+        string color = GameManager.GetLocal().player.IsMasterClient ? "red" : "green";
+        GameManager.instance.photonView.RPC("LogText", RpcTarget.All, GameManager.GetLocal().player.NickName + " takes 1 card from " + GameManager.GetRemote().player.NickName + "!", color);
         card.transform.SetParent(deck.transform, false);
     }
 

@@ -131,7 +131,7 @@ public class CardContainer : MonoBehaviour {
     // Only the current player can call this method.
     public void DoEffect() {
         string color = GameManager.GetLocal().player.IsMasterClient ? "red" : "green";
-        GameManager.instance.photonView.RPC("LogText", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + " uses " + GameManager.GetLocal().getSelectedCard().card.label, color);
+        GameManager.instance.photonView.RPC("LogText", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + " uses " + GameManager.GetLocal().getSelectedCard().card.label + ".", color);
         this.card.PlayCard();
         // photonView.RPC("Use", GameManager.GetRemote().player, false);
         // photonView.RPC("Use", GameManager.GetLocal().player, true);
@@ -147,7 +147,7 @@ public class CardContainer : MonoBehaviour {
         }
         string nickname = GameManager.GetLocal().player.NickName;
         string color = GameManager.GetLocal().player.IsMasterClient ? "red" : "green";
-        GameManager.instance.photonView.RPC("LogText", RpcTarget.All, nickname + " responses with " + GameManager.GetLocal().getSelectedCard().card.label, color);
+        GameManager.instance.photonView.RPC("LogText", RpcTarget.All, nickname + " responses with " + GameManager.GetLocal().getSelectedCard().card.label + ".", color);
         //photonView.RPC("Use", GameManager.GetRemote().player, false);
         //photonView.RPC("Use", GameManager.GetLocal().player, true);
         GameManager.GetLocal().photonView.RPC("UseCard", GameManager.GetRemote().player, false);
