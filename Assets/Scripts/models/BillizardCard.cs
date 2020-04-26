@@ -33,5 +33,6 @@ public class BillizardCard : Card {
     }
     public override void PlayCard() {
         GameManager.GetRemote().photonView.RPC("FrozePlayer", GameManager.GetRemote().player);
+        GameManager.GetRemote().FrozePlayer();
     }
 }

@@ -99,8 +99,6 @@ public class GameUI : MonoBehaviourPun {
     // Play button.
     public void OnPlayButton() {
         // TODO: implement discard function
-
-        Debug.Log("Play button clicked.");
         GameManager.instance.currentPlayer.getSelectedCard().DoEffect();
     }
 

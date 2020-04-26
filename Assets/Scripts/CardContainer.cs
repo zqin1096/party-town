@@ -20,7 +20,7 @@ public class CardContainer : MonoBehaviour {
 
     public const byte USE_CARD_EVENT = 3;
 
-    public void InitializeCard(string label) {
+    public void InitializeCard(string label, string number) {
         if (label == null) {
             this.card = CreateRandomCard();
             this.label.text = this.card.label;
@@ -50,6 +50,9 @@ public class CardContainer : MonoBehaviour {
                     break;
                 default:
                     break;
+            }
+            if (number != null) {
+                this.card.number = number;
             }
             this.label.text = this.card.label;
             this.number.text = this.card.number;

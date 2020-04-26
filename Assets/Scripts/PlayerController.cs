@@ -64,8 +64,7 @@ public class PlayerController : MonoBehaviourPun {
             string label = (string)data[0];
             string number = (string)data[1];
             GameObject card = Instantiate(cardPreb, new Vector3(0, 400, 0), Quaternion.identity);
-            card.GetComponent<CardContainer>().InitializeCard(label);
-            card.GetComponent<CardContainer>().card.number = number;
+            card.GetComponent<CardContainer>().InitializeCard(label, number);
             card.GetComponent<CardContainer>().card.used = true;
             card.transform.SetParent(canvas.transform, false);
             StartCoroutine(MoveCard(card));
@@ -166,13 +165,13 @@ public class PlayerController : MonoBehaviourPun {
             GameManager.instance.photonView.RPC("LogText", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + " is discarding cards.", color);
             AfterDiscarding callback = delegate () {
                 GameManager.instance.photonView.RPC("LogText", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + "'s turn ends!", color);
-                this.SetPromptText("Your opponent is playing...");
+                // this.SetPromptText("Your opponent is playing...");
                 GameManager.instance.photonView.RPC("SetNextTurn", RpcTarget.All);
             };
             this.Discard(this.numOfcards - this.maxHP, null, callback);
         } else {
             GameManager.instance.photonView.RPC("LogText", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + "'s turn ends!", color);
-            this.SetPromptText("Your opponent is playing...");
+            // this.SetPromptText("Your opponent is playing...");
             GameManager.instance.photonView.RPC("SetNextTurn", RpcTarget.All);
         }
     }
@@ -180,11 +179,10 @@ public class PlayerController : MonoBehaviourPun {
     public void StartTurn() {
         string color = GameManager.GetLocal().player.IsMasterClient ? "red" : "green";
         GameManager.instance.photonView.RPC("LogText", RpcTarget.All, GameManager.instance.currentPlayer.player.NickName + "'s turn starts!", color);
-        this.SetPromptText("Turn starting! Drawing card...");
+        this.SetPromptText("Drawing card...");
+        GameManager.GetRemote().DefrozePlayer();
         if (this.character.hasDrawingStageSkill) {
-            Debug.LogFormat("Character should be using skills now");
             this.character.DrawingStageSkill();
-            Debug.Log("has drawing stage skill");
         } else {
             InitCardWithAnimation(2);
         }
@@ -192,7 +190,7 @@ public class PlayerController : MonoBehaviourPun {
     }
 
     public void StartTurnSecond() {
-        this.SetPromptText("Use card wisely!");
+        this.SetPromptText("Select one card to play");
         if (this.isFrozen) {    // Potential problem: related to StartTurn(). Player is frozen during animation and this line maybe called before animation finishes.
             this.SetPromptText("You are frozen!");
             Invoke("EndTurn", 2);
@@ -229,7 +227,6 @@ public class PlayerController : MonoBehaviourPun {
     }
 
     public void SendResponse(bool response) {
-        this.SetPromptText("");
         this.isGettingRequest = false;
         if (response) {
             switch (this.enemyCard) {
@@ -269,6 +266,7 @@ public class PlayerController : MonoBehaviourPun {
         }
         this.enemyCard = null;
         this.requestedCard = null;
+        this.SetPromptText("Wait your opponent to play a card");
         GameManager.GetRemote().photonView.RPC("GetResponse", GameManager.GetRemote().player);
     }
 
@@ -284,6 +282,7 @@ public class PlayerController : MonoBehaviourPun {
     [PunRPC]
     public void GetResponse() {
         this.isWaitingResponse = false;
+        this.SetPromptText("Select one card to play");
     }
 
     [PunRPC]
@@ -320,7 +319,7 @@ public class PlayerController : MonoBehaviourPun {
         GameObject[] cards = new GameObject[numOfCards];
         for (int i = 0; i < numOfCards; i++) {
             GameObject card = Instantiate(cardPreb, new Vector3(0, 0, 0), Quaternion.identity);
-            card.GetComponent<CardContainer>().InitializeCard(null);
+            card.GetComponent<CardContainer>().InitializeCard(null, null);
             cards[i] = card;
         }
         StartCoroutine(Wait(cards));
@@ -391,6 +390,7 @@ public class PlayerController : MonoBehaviourPun {
         int random = UnityEngine.Random.Range(0, deck.transform.childCount);
         Transform child = deck.transform.GetChild(random);
         string label = child.GetComponent<CardContainer>().card.label;
+        string number = child.GetComponent<CardContainer>().card.number;
         //child.GetComponent<CardContainer>().photonView.RPC("Use", GameManager.GetRemote().player, false);
         //child.GetComponent<CardContainer>().photonView.RPC("Use", GameManager.GetLocal().player, true);
         photonView.RPC("UseCard", RpcTarget.Others, false);
@@ -398,15 +398,15 @@ public class PlayerController : MonoBehaviourPun {
         Destroy(child.gameObject);
         // Animation: card move from deck to enemy.
         SoundManager.PlaySound("cardTaken");
-        GameManager.GetRemote().photonView.RPC("GetCard", GameManager.GetRemote().player, label);
+        GameManager.GetRemote().photonView.RPC("GetCard", GameManager.GetRemote().player, label, number);
     }
 
     [PunRPC]
-    public void GetCard(string label) {
+    public void GetCard(string label, string number) {
         photonView.RPC("IncreaseCards", RpcTarget.Others, false, 1);
         photonView.RPC("IncreaseCards", player, true, 1);
         GameObject card = Instantiate(cardPreb, new Vector3(0, 0, 0), Quaternion.identity);
-        card.GetComponent<CardContainer>().InitializeCard(label);
+        card.GetComponent<CardContainer>().InitializeCard(label, number);
         //card.GetPhotonView().RPC("Initialize", RpcTarget.Others, false, label);
         //card.GetPhotonView().RPC("Initialize", player, true, label);
         SoundManager.PlaySound("cardTaken");

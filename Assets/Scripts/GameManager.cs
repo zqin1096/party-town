@@ -30,6 +30,8 @@ public class GameManager : MonoBehaviourPun {
         }
         if (currentPlayer == GameManager.GetLocal()) {
             GameManager.GetLocal().StartTurn();
+        } else {
+            GameManager.GetLocal().SetPromptText("Wait your opponent to play a card");
         }
     }
 

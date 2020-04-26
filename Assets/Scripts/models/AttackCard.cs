@@ -43,6 +43,7 @@ public class AttackCard : Card {
         GameManager.GetLocal().numberOfAttack++;
         // When a players uses the Attack card, this player is waiting for response.
         GameManager.GetLocal().SetIsWaitingResponse(true);
+        GameManager.GetLocal().SetPromptText("Waiting for response");
         // Inform the remote player that you are playing an "Attack" card and need a "Defense" card for response.
         GameManager.GetRemote().photonView.RPC("GetRequest", GameManager.GetRemote().player, this.label, "Defense");
     }

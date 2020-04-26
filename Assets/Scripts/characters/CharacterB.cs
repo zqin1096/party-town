@@ -12,8 +12,6 @@ public class CharacterB : Character {
 
     public override void DrawingStageSkill() {
         if (GameManager.GetRemote().numOfcards != 0) {
-            Debug.Log(GameManager.GetRemote().numOfcards);
-            // Debug.LogFormat("Character B's skill used by {0}", GameManager.GetLocal().username.text);
             GameManager.GetRemote().photonView.RPC("RemoveCard", GameManager.GetRemote().player);
             GameManager.GetLocal().InitCardWithAnimation(1);
         } else {

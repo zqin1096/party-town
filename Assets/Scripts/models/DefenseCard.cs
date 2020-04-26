@@ -34,7 +34,7 @@ public class DefenseCard : Card {
             return true;
         }
         // A Defense card can be selected when the local player receives a request of the Defense card.
-        if (GameManager.GetLocal().GetIsGettingRequest() && GameManager.GetLocal().getRequestedCard() == this.label && !GameManager.GetLocal().isFrozen) {
+        if (GameManager.GetLocal().GetIsGettingRequest() && GameManager.GetLocal().getRequestedCard() == this.label) {
             return true;
         }
         return false;
