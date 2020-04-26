@@ -184,11 +184,11 @@ public class PlayerController : MonoBehaviourPun {
 
     [PunRPC]
     void Initialize(Player player) {
-        if (player.IsMasterClient && player.IsLocal) {
-            this.SetCharacter(new CharacterB());
-        } else if (!player.IsMasterClient && player.IsLocal) {
-            this.SetCharacter(new CharacterC());
-        }
+        // if (player.IsMasterClient && player.IsLocal) {
+        //     this.SetCharacter(new CharacterB());
+        // } else if (!player.IsMasterClient && player.IsLocal) {
+        //     this.SetCharacter(new CharacterC());
+        // }
         this.currentHP = maxHP;
         this.player = player;
         if (player.IsLocal) {
