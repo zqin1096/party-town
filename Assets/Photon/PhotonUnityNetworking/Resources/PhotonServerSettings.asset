@@ -54,5 +54,7 @@ MonoBehaviour:
   - IncreaseCards
   - UseCard
   - LogText
+  - SetSelection
+  - SetupTable
   DisableAutoOpenWizard: 1
   ShowSettings: 0

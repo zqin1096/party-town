@@ -5,6 +5,7 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using ExitGames.Client.Photon;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviourPun {
     public PlayerController player1;
@@ -20,6 +21,13 @@ public class GameManager : MonoBehaviourPun {
     public const byte INITIALIZE_PLAYERS_DONE_EVENT = 1;
     public const int INITIALIZE_PLAYERS_DONE = 2;
     public static int numOfPlayersInitialized = 0;
+
+    public const byte SET_PLAYER_EVENT = 4;
+    public const int SET_PLAYER_EVENT_DONE = 2;
+    public static int numOfPlayersSet = 0;
+
+    public GameObject playWindow;
+    public GameObject settingWindow;
 
     [PunRPC]
     void SetNextTurn() {
@@ -69,17 +77,30 @@ public class GameManager : MonoBehaviourPun {
         }
     }
 
-    void Wait() {
+    void WaitOne() {
         photonView.RPC("SetNextTurn", RpcTarget.AllBuffered);
     }
 
+    [PunRPC]
+    void SetSelection() {
+        settingWindow.gameObject.SetActive(true);
+    }
+
+    void WaitTwo() {
+        photonView.RPC("SetSelection", RpcTarget.AllBuffered);
+    }
+
     void Update() {
+        if (numOfPlayersSet == SET_PLAYER_EVENT_DONE) {
+            Invoke("WaitTwo", 0.5f);
+            numOfPlayersSet = 0;
+        }
         if (numOfPlayersInitialized == INITIALIZE_PLAYERS_DONE) {
             Debug.Log(GameManager.GetLocal().numOfcards);
             Debug.Log(GameManager.GetRemote().numOfcards);
-            Invoke("Wait", 2f);
-            // photonView.RPC("SetNextTurn", RpcTarget.AllBuffered);
             numOfPlayersInitialized = 0;
+            Invoke("WaitOne", 2f);
+            // photonView.RPC("SetNextTurn", RpcTarget.AllBuffered);
         }
     }
 
@@ -94,6 +115,8 @@ public class GameManager : MonoBehaviourPun {
     private void NetworkingClient_EventReceived(EventData obj) {
         if (obj.Code == INITIALIZE_PLAYERS_DONE_EVENT) {
             numOfPlayersInitialized++;
+        } else if (obj.Code == SET_PLAYER_EVENT) {
+            numOfPlayersSet++;
         }
     }
 
@@ -135,5 +158,13 @@ public class GameManager : MonoBehaviourPun {
         GameManager.isGameEnded = false;
         PhotonNetwork.LeaveRoom();
         NetworkManager.instance.CreateScene("Menu");
+    }
+
+    [PunRPC]
+    public void SetupTable() {
+        GameManager.GetLocal().InitCardWithAnimation(4);
+        RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient };
+        SendOptions sendOptions = new SendOptions { Reliability = true };
+        PhotonNetwork.RaiseEvent(INITIALIZE_PLAYERS_DONE_EVENT, null, raiseEventOptions, sendOptions);
     }
 }

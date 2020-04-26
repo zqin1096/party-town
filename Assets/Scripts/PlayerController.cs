@@ -46,6 +46,7 @@ public class PlayerController : MonoBehaviourPun {
 
     public const byte INITIALIZE_PLAYERS_DONE_EVENT = 1;
     public const byte USE_CARD_EVENT = 3;
+    public const byte SET_PLAYER_EVENT = 4;
 
     public GameObject playedCard;
     public GameObject canvas;
@@ -200,23 +201,34 @@ public class PlayerController : MonoBehaviourPun {
 
     [PunRPC]
     void Initialize(Player player) {
-        if (player.IsMasterClient && player.IsLocal) {
-            this.SetCharacter(new CharacterB());
-        } else if (!player.IsMasterClient && player.IsLocal) {
-            this.SetCharacter(new CharacterC());
-        }
+        //if (player.IsMasterClient && player.IsLocal) {
+        //    this.SetCharacter(new CharacterB());
+        //} else if (!player.IsMasterClient && player.IsLocal) {
+        //    this.SetCharacter(new CharacterC());
+        //}
         this.currentHP = maxHP;
         this.player = player;
         if (player.IsLocal) {
             this.username.text = player.NickName;
             this.remoteUsername.text = player.GetNext().NickName;
-            InitCardWithAnimation(4);
             RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient };
             SendOptions sendOptions = new SendOptions { Reliability = true };
-            PhotonNetwork.RaiseEvent(INITIALIZE_PLAYERS_DONE_EVENT, null, raiseEventOptions, sendOptions);
+            PhotonNetwork.RaiseEvent(SET_PLAYER_EVENT, null, raiseEventOptions, sendOptions);
+            //InitCardWithAnimation(4);
+            //RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient };
+            //SendOptions sendOptions = new SendOptions { Reliability = true };
+            //PhotonNetwork.RaiseEvent(INITIALIZE_PLAYERS_DONE_EVENT, null, raiseEventOptions, sendOptions);
         } else {
         }
     }
+
+    // Should only be called once per game by master client.
+    //public void SetupTable() {
+    //    InitCardWithAnimation(4);
+    //    RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient };
+    //    SendOptions sendOptions = new SendOptions { Reliability = true };
+    //    PhotonNetwork.RaiseEvent(INITIALIZE_PLAYERS_DONE_EVENT, null, raiseEventOptions, sendOptions);
+    //}
 
     [PunRPC]
     public void GetRequest(string enemyCard, string requestedCard) {

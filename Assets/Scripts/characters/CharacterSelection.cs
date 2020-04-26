@@ -7,17 +7,14 @@ using Photon.Pun;
 using Photon.Realtime;
 using ExitGames.Client.Photon;
 
-
 public class CharacterSelection : MonoBehaviourPun {
     public Character[] characters;
     public Button CharacterButtonA;
     public Button CharacterButtonB;
     public Button CharacterButtonC;
 
-    public GameObject PlayWindow;
-    public GameObject SettingWindow;
-
-    public Button SelectionButton;
+    public GameObject playWindow;
+    public GameObject settingWindow;
 
     public const byte SELECTION_EVENT = 2;
     public const int SELECTION_DONE = 2;
@@ -25,9 +22,6 @@ public class CharacterSelection : MonoBehaviourPun {
 
     // Start is called before the first frame update
     void Start() {
-
-        SettingWindow.SetActive(true);
-        PlayWindow.SetActive(false);
         characters = new Character[] {
             new CharacterA(),
             new CharacterB(),
@@ -38,14 +32,20 @@ public class CharacterSelection : MonoBehaviourPun {
     // Update is called once per frame
     void Update() {
         if (numOfPlayersSelection == SELECTION_DONE) {
-            // photonView.RPC("SetNextTurn", RpcTarget.AllBuffered);
-            PlayWindow.SetActive(true);
-            SettingWindow.SetActive(false);
+            playWindow.SetActive(true);
+            settingWindow.SetActive(false);
+            numOfPlayersSelection = 0;
+            if (GameManager.GetLocal().player.IsMasterClient) {
+                GameManager.instance.photonView.RPC("SetupTable", RpcTarget.AllBuffered);
+            }
         }
     }
     public void CharacterSet(int index) {
-        Debug.Log("character set: " + index);
         GameManager.GetLocal().character = characters[index];
+        CharacterButtonA.gameObject.SetActive(false);
+        CharacterButtonB.gameObject.SetActive(false);
+        CharacterButtonC.gameObject.SetActive(false);
+        NotifyClients();
     }
 
     private void OnEnable() {
@@ -62,12 +62,11 @@ public class CharacterSelection : MonoBehaviourPun {
         }
     }
 
-    public void Selection() {
+    private void NotifyClients() {
         RaiseEventOptions options = new RaiseEventOptions() {
             Receivers = ReceiverGroup.All
         };
         SendOptions sendOptions = new SendOptions { Reliability = true };
         PhotonNetwork.RaiseEvent(SELECTION_EVENT, null, options, sendOptions);
-
     }
 }
