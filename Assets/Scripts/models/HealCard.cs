@@ -12,10 +12,14 @@ public class HealCard : Card {
         this.type = "Basic Card";
         this.cardSprite = Resources.Load<Sprite>("Health");
         this.effectType = EffectType.Self;
+        this.used = false;
     }
 
     public override bool CanSelect() {
         if (GameManager.isGameEnded) {
+            return false;
+        }
+        if (this.used) {
             return false;
         }
         // This is used in discard mode

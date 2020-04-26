@@ -12,9 +12,13 @@ public class TakeCard : Card {
         this.type = "Utility Card";
         this.cardSprite = Resources.Load<Sprite>("Knight");
         this.effectType = EffectType.Enemy;
+        this.used = false;
     }
     public override bool CanSelect() {
         if (GameManager.isGameEnded) {
+            return false;
+        }
+        if (this.used) {
             return false;
         }
         // This is used in discard mode

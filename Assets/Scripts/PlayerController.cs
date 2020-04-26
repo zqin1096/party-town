@@ -45,6 +45,36 @@ public class PlayerController : MonoBehaviourPun {
     public bool isFrozen = false;
 
     public const byte INITIALIZE_PLAYERS_DONE_EVENT = 1;
+    public const byte USE_CARD_EVENT = 3;
+
+    public GameObject playedCard;
+    public GameObject canvas;
+
+    private void OnEnable() {
+        PhotonNetwork.NetworkingClient.EventReceived += NetworkingClient_EventReceived;
+    }
+
+    private void OnDisable() {
+        PhotonNetwork.NetworkingClient.EventReceived -= NetworkingClient_EventReceived;
+    }
+
+    private void NetworkingClient_EventReceived(EventData obj) {
+        if (obj.Code == USE_CARD_EVENT) {
+            object[] data = (object[])obj.CustomData;
+            string label = (string)data[0];
+            string number = (string)data[1];
+            GameObject card = Instantiate(cardPreb, new Vector3(0, 400, 0), Quaternion.identity);
+            card.GetComponent<CardContainer>().InitializeCard(label);
+            card.GetComponent<CardContainer>().card.number = number;
+            card.GetComponent<CardContainer>().card.used = true;
+            card.transform.SetParent(canvas.transform, false);
+            StartCoroutine(MoveCard(card));
+            IEnumerator MoveCard(GameObject item) {
+                iTween.MoveTo(item, iTween.Hash("position", playedCard.transform.position, "time", 0.5f));
+                yield return item;
+            }
+        }
+    }
 
     void Update() {
         localNumberOfCards.text = GameManager.GetLocal().numOfcards.ToString();
@@ -263,6 +293,23 @@ public class PlayerController : MonoBehaviourPun {
 
     public void DefrozePlayer() {
         this.isFrozen = false;
+    }
+
+
+    public void MoveSelectedCard() {
+        this.selectedCard.transform.SetParent(canvas.transform, true);
+        StartCoroutine(Wait());
+        IEnumerator Wait() {
+            this.FrozePlayer();
+            yield return StartCoroutine(MoveCard(this.selectedCard.gameObject));
+            this.DefrozePlayer();
+            // GameManager.GetLocal().setSelectedCard(null);
+        }
+
+        IEnumerator MoveCard(GameObject card) {
+            iTween.MoveTo(card, iTween.Hash("position", playedCard.transform.position, "time", 0.5f));
+            yield return card;
+        }
     }
 
     public void InitCardWithAnimation(int numOfCards) {

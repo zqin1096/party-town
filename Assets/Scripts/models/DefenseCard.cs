@@ -13,6 +13,7 @@ public class DefenseCard : Card {
         this.type = "Basic Card";
         this.cardSprite = Resources.Load<Sprite>("Guard");
         this.effectType = EffectType.Self;
+        this.used = false;
     }
 
     public override void PlayCard() {
@@ -22,6 +23,9 @@ public class DefenseCard : Card {
 
     public override bool CanSelect() {
         if (GameManager.isGameEnded) {
+            return false;
+        }
+        if (this.used) {
             return false;
         }
         // This is used in discard mode
