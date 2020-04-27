@@ -34,6 +34,8 @@ public class GameManager : MonoBehaviourPun {
 
     public GameObject waitMessage;
 
+    public GameObject textLog;
+
     [PunRPC]
     void SetNextTurn() {
         if (currentPlayer == null) {
@@ -150,6 +152,7 @@ public class GameManager : MonoBehaviourPun {
 
     [PunRPC]
     void WinGame() {
+        textLog.gameObject.SetActive(false);
         isGameEnded = true;
         if (GetLocal().GetCurrentHP() > 0) {
             GameUI.instance.SetWinText("You win!");

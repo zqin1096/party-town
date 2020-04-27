@@ -48,6 +48,7 @@ public class PlayerController : MonoBehaviourPun {
     public const byte INITIALIZE_PLAYERS_DONE_EVENT = 1;
     public const byte USE_CARD_EVENT = 3;
     public const byte SET_PLAYER_EVENT = 4;
+    public const byte TAKE_DAMAGE_EVENT = 5;
 
     public GameObject playedCard;
     public GameObject canvas;
@@ -74,6 +75,8 @@ public class PlayerController : MonoBehaviourPun {
                 iTween.MoveTo(item, iTween.Hash("position", playedCard.transform.position, "time", 0.5f));
                 yield return item;
             }
+        } else if (obj.Code == TAKE_DAMAGE_EVENT) {
+            StartCoroutine(Flash(GameManager.instance.remoteCharacter));
         }
     }
 
@@ -238,6 +241,12 @@ public class PlayerController : MonoBehaviourPun {
         this.requestedCard = requestedCard;
         this.SetPromptText("You are under attack! Defense yourself!");
     }
+    IEnumerator Flash(Image image) {
+        image.color = Color.red;
+        yield return new WaitForSeconds(0.05f);
+        image.color = Color.white;
+        yield return new WaitForSeconds(0.05f);
+    }
 
     public void SendResponse(bool response) {
         this.isGettingRequest = false;
@@ -255,6 +264,10 @@ public class PlayerController : MonoBehaviourPun {
             switch (this.enemyCard) {
                 case "Attack":
                     this.currentHP--;
+                    StartCoroutine(Flash(GameManager.instance.localCharacter));
+                    RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.Others };
+                    SendOptions sendOptions = new SendOptions { Reliability = true };
+                    PhotonNetwork.RaiseEvent(TAKE_DAMAGE_EVENT, null, raiseEventOptions, sendOptions);
                     GameManager.instance.photonView.RPC("LogText", RpcTarget.All, GameManager.GetLocal().player.NickName + " loses 1hp!", color);
                     SoundManager.PlaySound("pain");
                     GameManager.GetLocal().photonView.RPC("UpdateHealth", RpcTarget.Others, currentHP, false);
@@ -264,6 +277,7 @@ public class PlayerController : MonoBehaviourPun {
                 case "Special Attack":
                     int damage = this.isFrozen ? 2 : 1;
                     this.currentHP -= damage;
+                    StartCoroutine(Flash(GameManager.instance.localCharacter));
                     GameManager.instance.photonView.RPC("LogText", RpcTarget.All, GameManager.GetLocal().player.NickName + " loses " + damage + "hp!", color);
                     SoundManager.PlaySound("pain");
                     if (currentHP < 0) {
