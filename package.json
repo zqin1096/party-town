@@ -1,0 +1,17 @@
+{
+  "name": "trojan-blitz",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "Trojan Blitz",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "del": "^5.1.0",
+    "gulp": "^4.0.2",
+    "jege": "^0.5.1"
+  },
+  "scripts": {
+    "docs": "node ./scripts/build.js"
+  }
+}

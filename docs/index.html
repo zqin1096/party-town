@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="en-us">
-  <head>
+<!DOCTYPE html><html lang="en-us"><head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity WebGL Player | CSCI599</title>
@@ -11,15 +9,32 @@
     <script>
       var unityInstance = UnityLoader.instantiate("unityContainer", "Build/webgl.json", {onProgress: UnityProgress});
     </script>
-  </head>
-  <body>
-    <div class="webgl-content">
+  
+<style>
+  .webgl-content {
+    position: static;
+    transform: none;
+  }
+</style>
+</head>
+  <body><div id="wrap"><div class="webgl-content">
       <div id="unityContainer" style="width: 960px; height: 600px"></div>
       <div class="footer">
         <div class="webgl-logo"></div>
         <div class="fullscreen" onclick="unityInstance.SetFullscreen(1)"></div>
         <div class="title">CSCI599</div>
       </div>
-    </div>
-  </body>
-</html>
+    
+<div id="desc">
+  <h2>
+    123
+  </h2>
+  <p>
+    power
+  </p>
+</div>
+</div></div>
+    
+  
+
+</body></html>
