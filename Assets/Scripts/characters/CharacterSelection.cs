@@ -20,6 +20,9 @@ public class CharacterSelection : MonoBehaviourPun {
     public const int SELECTION_DONE = 2;
     public static int numOfPlayersSelection = 0;
 
+    public GameObject selectMessage;
+    public GameObject waitMessage;
+
     // Start is called before the first frame update
     void Start() {
         characters = new Character[] {
@@ -41,6 +44,9 @@ public class CharacterSelection : MonoBehaviourPun {
         }
     }
     public void CharacterSet(int index) {
+        selectMessage.gameObject.SetActive(false);
+        waitMessage.gameObject.SetActive(true);
+        GameManager.instance.photonView.RPC("SetRemoteCharacter", GameManager.GetRemote().player, characters[index].characterName);
         GameManager.GetLocal().character = characters[index];
         CharacterButtonA.gameObject.SetActive(false);
         CharacterButtonB.gameObject.SetActive(false);

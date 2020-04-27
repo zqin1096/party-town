@@ -4,6 +4,9 @@ using UnityEngine;
 
 public abstract class Character {
 
+    public Sprite characterSprite;
+    public string characterName;
+
     public virtual int maxHP { get { return 3; } }
 
     // indicate if this character has certain skills on corresponding stages

@@ -29,6 +29,11 @@ public class GameManager : MonoBehaviourPun {
     public GameObject playWindow;
     public GameObject settingWindow;
 
+    public Image localCharacter;
+    public Image remoteCharacter;
+
+    public GameObject waitMessage;
+
     [PunRPC]
     void SetNextTurn() {
         if (currentPlayer == null) {
@@ -162,9 +167,28 @@ public class GameManager : MonoBehaviourPun {
 
     [PunRPC]
     public void SetupTable() {
+        waitMessage.gameObject.SetActive(false);
+        localCharacter.sprite = GameManager.GetLocal().character.characterSprite;
+        remoteCharacter.sprite = GameManager.GetLocal().remoteCharacter.characterSprite;
         GameManager.GetLocal().InitCardWithAnimation(4);
         RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient };
         SendOptions sendOptions = new SendOptions { Reliability = true };
         PhotonNetwork.RaiseEvent(INITIALIZE_PLAYERS_DONE_EVENT, null, raiseEventOptions, sendOptions);
+    }
+
+    [PunRPC]
+    public void SetRemoteCharacter(string name) {
+        Debug.Log(name);
+        switch (name) {
+            case "Amphius":
+                GameManager.GetLocal().remoteCharacter = new CharacterA();
+                break;
+            case "Elatus":
+                GameManager.GetLocal().remoteCharacter = new CharacterB();
+                break;
+            case "Pyris":
+                GameManager.GetLocal().remoteCharacter = new CharacterC();
+                break;
+        }
     }
 }

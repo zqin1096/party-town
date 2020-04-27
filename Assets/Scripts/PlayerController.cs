@@ -27,6 +27,7 @@ public class PlayerController : MonoBehaviourPun {
     public int numOfcards;
     public int numberOfAttack;
     public Character character;
+    public Character remoteCharacter;
 
     private CardContainer selectedCard;
     private bool isWaitingResponse;
@@ -305,7 +306,6 @@ public class PlayerController : MonoBehaviourPun {
     public void DefrozePlayer() {
         this.isFrozen = false;
     }
-
 
     public void MoveSelectedCard() {
         this.selectedCard.transform.SetParent(canvas.transform, true);

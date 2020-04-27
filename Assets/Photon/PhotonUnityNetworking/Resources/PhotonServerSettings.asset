@@ -56,5 +56,6 @@ MonoBehaviour:
   - LogText
   - SetSelection
   - SetupTable
+  - SetRemoteCharacter
   DisableAutoOpenWizard: 1
   ShowSettings: 0

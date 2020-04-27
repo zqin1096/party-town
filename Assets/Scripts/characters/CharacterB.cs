@@ -7,6 +7,12 @@ using UnityEngine;
  * 
  * */
 public class CharacterB : Character {
+
+    public CharacterB() : base() {
+        this.characterSprite = Resources.Load<Sprite>("Phantom");
+        this.characterName = "Elatus";
+    }
+
     public override string name { get { return "Character B"; } }
     public override bool hasDrawingStageSkill { get { return true; } }
 
