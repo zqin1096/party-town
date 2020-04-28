@@ -131,11 +131,14 @@ gulp.task('modify-html', () => {
   <p>
     Trojan Blitz, created with Unity, written in C#, is a multiplayer game application, that is designed to run in mobile devices. Using remote procedure calls (RPCs), it propagates a state of the application to player nodes in the network. It might as well have been architected in such a way that it only broadcasts "action" to the participating nodes. Other than multi-agent element, Trojan Blitz has an architecture typically expected of game applications. GameManager, Character, Card, Player are fundamental classes that make up this game.
   </p>
+  <h2 class="h2">
+    CSCI599
+  </h2>
+  <p>
+    This project is initiated as the course assignment of CSCI599 - Special Topics (Social Mobile Games), at the University of Southern California in Spring 2020.
+  </p>
   <p class="ref">
     <a href="https://github.com/zqin1096/party-town">Github</a>
-  </p>
-  <p class="h2">
-    This project is initiated as the course assignment of CSCI599 - Special Topics (Social Mobile Games), at the University of Southern California in Spring 2020.
   </p>
 </div>
 `;
