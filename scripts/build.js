@@ -78,7 +78,7 @@ gulp.task('modify-html', () => {
     font-size: 5vw;
   }
   #wrap {
-    margin: 80px auto 0;
+    margin: 80px auto;
     width: 960px;
   }
   @media (max-width: 480px) {
@@ -116,7 +116,7 @@ gulp.task('modify-html', () => {
   const descHtml = `
 <div id="desc">
   <h2 class="h2">
-    Trojan Blitz
+    TrojanBlitz
   </h2>
   <p>
     A highly versatile, fast-paced, deck-building card game for the mobile platform. Intuitive play with deck building strategy to compete in battles on the clock. Players choose their character at the start of a match from a randomly generated selection, and then play using the deck they have customized with their own cards.
@@ -129,7 +129,7 @@ gulp.task('modify-html', () => {
     Multiplayer Game - System Design
   </h2>
   <p>
-    Trojan Blitz, created with Unity, written in C#, is a multiplayer game application, that is designed to run in mobile devices. Using remote procedure calls (RPCs), it propagates a state of the application to player nodes in the network. It might as well have been architected in such a way that it only broadcasts "action" to the participating nodes. Other than multi-agent element, Trojan Blitz has an architecture typically expected of game applications. GameManager, Character, Card, Player are fundamental classes that make up this game.
+    TrojanBlitz, created with Unity, written in C#, is a multiplayer game application, that is designed to run in mobile devices. Using remote procedure calls (RPCs), it propagates a state of the application to player nodes in the network. It might as well have been architected in such a way that it only broadcasts "action" to the participating nodes. Other than multi-agent element, TrojanBlitz has an architecture typically expected of game applications. GameManager, Character, Card, Player are fundamental classes that make up this game.
   </p>
   <h2 class="h2">
     CSCI599
@@ -143,6 +143,7 @@ gulp.task('modify-html', () => {
 </div>
 `;
 
+  $('title').html('TrojanBlitz: Fast deck building card game');
   $('head').append(styleHtml);
   $('head').append(scriptHtml);
   $('body').prepend('<div id="wrap"></div>');
