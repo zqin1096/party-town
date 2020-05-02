@@ -78,8 +78,9 @@ gulp.task('modify-html', () => {
     font-size: 5vw;
   }
   #wrap {
-    margin: 80px auto;
-    width: 960px;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
   }
   @media (max-width: 480px) {
     body {
@@ -87,34 +88,50 @@ gulp.task('modify-html', () => {
     }
   }
   .h2 {
-    margin-top: 0.5em;
+    margin-top: 0.82em;
     margin-bottom: 0.2em;
   }
   .warn {
-    color: #767676;
+    color: #b22b77;
   }
   .webgl-content {
+    align-items: center;
+    background-color: #e8e8e8;
+    display: flex;
+    flex-direction: column;
+    padding: 80px 0;
     position: static;
     transform: none;
+    width: 100%;
+  }
+  .footer {
+    width: 960px;
   }
   #desc {
-    margin-top: 2.6em;
+    margin-top: 3.6em;
   }
   .ref {
     margin-top: 0.6em;
+  }
+  .w960 {
+    width: 960px;
+  }
+  .media-container {
+    display: flex;
+    justify-content: center;
   }
 </style>
 `;
 
   const warnHtml = `
-<p class="warn">
+<p class="warn w960">
   This application is designed to run in devices that support WebGL, with the viewport ratio ideally 2:1. Position your device horizontally so that width exceeds height.
   Note also that the game is served on a Photon public cloud. This may no longer be available in the future.
 </p>
 `;
 
   const descHtml = `
-<div id="desc">
+<div id="desc" class="w960">
   <h2 class="h2">
     TrojanBlitz
   </h2>
@@ -124,7 +141,9 @@ gulp.task('modify-html', () => {
   <h2 class="h2">
     Gameplay
   </h2>
-  <div style="width:100%;height:0px;position:relative;padding-bottom:48.387%;"><iframe src="https://streamable.com/e/8qizpb" frameborder="0" width="100%" height="100%" allowfullscreen style="width:100%;height:100%;position:absolute;left:0px;top:0px;overflow:hidden;"></iframe></div>
+  <div class="media-container">
+    <div style="width:80%;height:0px;position:relative;padding-bottom:48.046%;"><iframe src="https://streamable.com/e/2f6bbj" frameborder="0" width="100%" height="100%" allowfullscreen style="width:100%;height:100%;position:absolute;left:0px;top:0px;overflow:hidden;"></iframe></div>
+  </div>
   <h2 class="h2">
     Multiplayer Game - System Design
   </h2>
@@ -148,10 +167,10 @@ gulp.task('modify-html', () => {
   $('head').append(scriptHtml);
   $('body').prepend('<div id="wrap"></div>');
   const webglContent = $('.webgl-content');
-  webglContent.append(descHtml);
 
   $('#wrap').prepend(warnHtml);
   $('#wrap').append(webglContent);
+  $('#wrap').append(descHtml);
   const nextHtml = $.html();
 
   fs.writeFileSync(srcPath, nextHtml, {
