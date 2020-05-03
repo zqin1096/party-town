@@ -133,6 +133,12 @@ gulp.task('modify-html', () => {
   const descHtml = `
 <div id="desc" class="w960">
   <h2 class="h2">
+    WARNING - Memory Leak
+  </h2>
+  <p>
+    Due to a negligence in designing how the game engine updates the next frame, the application tends to lavishly spend the memory. We do acknowledge the symptom and hereby warn the users.
+  </p>
+  <h2 class="h2">
     TrojanBlitz
   </h2>
   <p>
