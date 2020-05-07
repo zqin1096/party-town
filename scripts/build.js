@@ -196,7 +196,7 @@ gulp.task('modify-html', () => {
     CSCI599
   </h2>
   <p>
-    This project is initiated as the course assignment of CSCI599 - Special Topics (Social Mobile Games), at the University of Southern California in Spring 2020.
+    This project is initiated as a course assignment of CSCI599 - Special Topics (Social Mobile Games), at the University of Southern California in Spring 2020.
   </p>
   <ul>
     <li>Everett Frank	<a href="mailto:everettf@usc.edu">everettf@usc.edu</a></li>
